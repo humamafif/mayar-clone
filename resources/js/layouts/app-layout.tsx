@@ -1,5 +1,7 @@
-import AppLayoutTemplate from '@/layouts/app/app-sidebar-layout';
-import { type BreadcrumbItem } from '@/types';
+import AppLayoutTemplate from '@/layouts/app/app-header-layout';
+import AdminLayoutTemplate from '@/layouts/app/app-sidebar-layout';
+import { SharedData, type BreadcrumbItem } from '@/types';
+import { usePage } from '@inertiajs/react';
 import { type ReactNode } from 'react';
 
 interface AppLayoutProps {
@@ -7,8 +9,21 @@ interface AppLayoutProps {
     breadcrumbs?: BreadcrumbItem[];
 }
 
-export default ({ children, breadcrumbs, ...props }: AppLayoutProps) => (
-    <AppLayoutTemplate breadcrumbs={breadcrumbs} {...props}>
-        {children}
-    </AppLayoutTemplate>
-);
+export default ({ children, breadcrumbs, ...props }: AppLayoutProps) => {
+    const page = usePage<SharedData>();
+    const { auth } = page.props;
+    const currentURL = page.url;
+
+    if (auth.user && auth.user.role === 'seller' && /^\/seller(?:\/|$)/.test(currentURL)) {
+        return (
+            <AdminLayoutTemplate breadcrumbs={breadcrumbs} {...props}>
+                {children}
+            </AdminLayoutTemplate>
+        );
+    }
+    return (
+        <AppLayoutTemplate breadcrumbs={breadcrumbs} {...props}>
+            {children}
+        </AppLayoutTemplate>
+    );
+};
