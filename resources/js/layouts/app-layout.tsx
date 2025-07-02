@@ -3,6 +3,7 @@ import AdminLayoutTemplate from '@/layouts/app/app-sidebar-layout';
 import { SharedData, type BreadcrumbItem } from '@/types';
 import { usePage } from '@inertiajs/react';
 import { type ReactNode } from 'react';
+import { Toaster } from 'sonner';
 
 interface AppLayoutProps {
     children: ReactNode;
@@ -17,6 +18,7 @@ export default ({ children, breadcrumbs, ...props }: AppLayoutProps) => {
     if (auth.user && auth.user.role === 'seller' && /^\/seller(?:\/|$)/.test(currentURL)) {
         return (
             <AdminLayoutTemplate breadcrumbs={breadcrumbs} {...props}>
+                <Toaster />
                 {children}
             </AdminLayoutTemplate>
         );

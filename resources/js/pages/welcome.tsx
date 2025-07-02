@@ -1,8 +1,22 @@
+import { ProductCard } from '@/components/product-card';
 import AppLayout from '@/layouts/app-layout';
 import { type SharedData } from '@/types';
 import { Head, usePage } from '@inertiajs/react';
 
-export default function Welcome() {
+// Definisikan interface untuk produk
+interface Product {
+    id: number;
+    name: string;
+    description: string;
+    price: number;
+    image: string;
+    stock: number;
+    seller: {
+        shop_name: string;
+    };
+}
+
+export default function Welcome({ products = [] }: { products: Product[] }) {
     const { auth } = usePage<SharedData>().props;
 
     return (
@@ -11,175 +25,140 @@ export default function Welcome() {
                 <link rel="preconnect" href="https://fonts.bunny.net" />
                 <link href="https://fonts.bunny.net/css?family=instrument-sans:400,500,600" rel="stylesheet" />
             </Head>
-            {/* HERO SECTION */}
-            <div className="mt-8 rounded-2xl bg-gradient-to-r from-indigo-600 to-purple-600 py-16">
+
+            {/* HERO SECTION*/}
+            <div className="mt-8 rounded-2xl bg-gradient-to-r from-blue-600 to-indigo-700 py-16">
                 <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
                     <div className="grid grid-cols-1 items-center gap-12 md:grid-cols-2">
                         <div className="text-white">
-                            <h1 className="mb-4text-4xl font-bold md:text-5xl">Premium Digital Templates</h1>
-                            <p className="mb-8 text-xl text-indigo-100">
-                                Unlock your creativity with our exclusive collection of professional digital templates. Perfect for social media,
-                                presentations, and more!
+                            <h1 className="mb-4 text-4xl font-bold md:text-5xl">Belanja Produk Digital Terbaik</h1>
+                            <p className="mb-8 text-xl text-blue-100">
+                                Temukan berbagai produk digital berkualitas dari penjual terpercaya. Aman, mudah, dan harga terjangkau!
                             </p>
                             <div className="space-y-3">
                                 <div className="flex items-center">
                                     <svg
                                         xmlns="http://www.w3.org/2000/svg"
-                                        className="mr-2 h-6 w-6 text-indigo-200"
+                                        className="mr-2 h-6 w-6 text-blue-200"
                                         fill="none"
                                         viewBox="0 0 24 24"
                                         stroke="currentColor"
                                     >
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                                     </svg>
-                                    <p className="text-indigo-100">Thousands of premium templates</p>
+                                    <p className="text-blue-100">Produk digital asli dan berkualitas</p>
                                 </div>
                                 <div className="flex items-center">
                                     <svg
                                         xmlns="http://www.w3.org/2000/svg"
-                                        className="mr-2 h-6 w-6 text-indigo-200"
+                                        className="mr-2 h-6 w-6 text-blue-200"
                                         fill="none"
                                         viewBox="0 0 24 24"
                                         stroke="currentColor"
                                     >
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                                     </svg>
-                                    <p className="text-indigo-100">Exclusive discount for new users</p>
+                                    <p className="text-blue-100">Transaksi aman dan terpercaya</p>
                                 </div>
                                 <div className="flex items-center">
                                     <svg
                                         xmlns="http://www.w3.org/2000/svg"
-                                        className="mr-2 h-6 w-6 text-indigo-200"
+                                        className="mr-2 h-6 w-6 text-blue-200"
                                         fill="none"
                                         viewBox="0 0 24 24"
                                         stroke="currentColor"
                                     >
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                                     </svg>
-                                    <p className="text-indigo-100">Regular updates with new content</p>
+                                    <p className="text-blue-100">Dukungan penjual 24/7</p>
                                 </div>
                             </div>
                             <div className="mt-10">
                                 <a
-                                    href="#"
-                                    className="mr-4 inline-block rounded-lg bg-white px-6 py-3 text-lg font-semibold text-indigo-600 transition hover:bg-indigo-50"
+                                    href="#produk"
+                                    className="mr-4 inline-block rounded-lg bg-white px-6 py-3 text-lg font-semibold text-blue-600 transition hover:bg-blue-50"
                                 >
-                                    Get 50% Off Today
+                                    Belanja Sekarang
                                 </a>
-                                <a
-                                    href="#"
-                                    className="hover:bg-opacity-10 inline-block rounded-lg border border-white px-6 py-3 text-lg font-semibold text-white transition hover:bg-white"
-                                >
-                                    Browse Templates
-                                </a>
+
+                                {!auth.user ? (
+                                    <a
+                                        href="/login"
+                                        className="hover:bg-opacity-10 inline-block rounded-lg border border-white px-6 py-3 text-lg font-semibold text-white transition hover:bg-white hover:text-blue-600"
+                                    >
+                                        Masuk/Daftar
+                                    </a>
+                                ) : auth.user.role == 'seller' ? (
+                                    <a
+                                        href="/seller/dashboard"
+                                        className="hover:bg-opacity-10 inline-block rounded-lg border border-white px-6 py-3 text-lg font-semibold text-white transition hover:bg-white hover:text-blue-600"
+                                    >
+                                        Toko Saya
+                                    </a>
+                                ) : (
+                                    <a
+                                        href="/seller/join"
+                                        className="hover:bg-opacity-10 inline-block rounded-lg border border-white px-6 py-3 text-lg font-semibold text-white transition hover:bg-white hover:text-blue-600"
+                                    >
+                                        Mulai Jualan
+                                    </a>
+                                )}
                             </div>
                         </div>
                         <div className="relative">
                             <div className="relative z-10 rotate-3 transform rounded-lg bg-white p-2 shadow-xl">
                                 <img
-                                    src="https://placehold.co/600x400/indigo/white?text=Premium+Template"
-                                    alt="Premium Template"
-                                    className="w-full rounded"
+                                    src="/images/card-hero-section.jpeg"
+                                    alt="Produk Digital"
+                                    className="h-64 w-full rounded object-cover"
+                                    onError={(e) => {
+                                        e.currentTarget.src = 'https://placehold.co/600x400/blue/white?text=Produk+Digital';
+                                    }}
                                 />
                             </div>
                             <div className="absolute top-8 -left-4 z-0 hidden -rotate-6 transform rounded-lg bg-white p-2 shadow-xl md:block">
                                 <img
-                                    src="https://placehold.co/500x300/purple/white?text=Digital+Design"
-                                    alt="Digital Design"
-                                    className="w-full rounded"
+                                    src="/images/digital-store.jpg"
+                                    alt="Toko Digital"
+                                    className="h-48 w-full rounded object-cover"
+                                    onError={(e) => {
+                                        e.currentTarget.src = 'https://placehold.co/500x300/indigo/white?text=Toko+Digital';
+                                    }}
                                 />
                             </div>
-                            <div className="absolute -right-4 -bottom-4 z-20 hidden rounded-lg bg-gradient-to-r from-pink-500 to-orange-500 p-4 text-white shadow-lg md:block">
-                                <p className="text-xl font-bold">50% OFF</p>
-                                <p>Limited time offer!</p>
+                            <div className="absolute -right-4 -bottom-4 z-20 hidden rounded-lg bg-gradient-to-r from-green-500 to-blue-500 p-4 text-white shadow-lg md:block">
+                                <p className="text-xl font-bold">100% Aman</p>
+                                <p>Garansi kepuasan!</p>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
-            {/* KATALOG */}
-            <div className="py-16">
+
+            {/* KATALOG PRODUK */}
+            <div className="py-16" id="produk">
                 <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
                     <div className="mb-12 text-center">
-                        <h2 className="mb-4 text-3xl font-bold text-gray-900">Our Premium Templates</h2>
-                        <p className="mx-auto max-w-2xl text-lg text-gray-600">Browse our collection of high-quality templates for every need</p>
+                        <h2 className="mb-4 text-3xl font-bold text-gray-900">Produk Terbaru</h2>
+                        <p className="mx-auto max-w-2xl text-lg text-gray-600">Temukan produk digital terbaik dari penjual terpercaya</p>
                     </div>
 
                     <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-3">
-                        {/* Card 1 */}
-                        <div className="group overflow-hidden rounded-lg bg-white shadow-md transition hover:shadow-xl">
-                            <div className="relative h-60 overflow-hidden">
-                                <img
-                                    src="https://placehold.co/600x400/orange/white?text=Social+Media+Pack"
-                                    alt="Social Media Template"
-                                    className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
-                                />
-                                <div className="absolute top-4 right-4 rounded-full bg-indigo-600 px-3 py-1 text-sm font-semibold text-white">
-                                    Popular
-                                </div>
+                        {products.length > 0 ? (
+                            products.map((product) => <ProductCard key={product.id} product={product} />)
+                        ) : (
+                            <div className="col-span-full py-12 text-center">
+                                <p className="text-xl text-gray-500">Belum ada produk tersedia. Silakan periksa kembali nanti!</p>
                             </div>
-                            <div className="p-6">
-                                <h3 className="text-xl font-bold text-gray-900">Social Media Pack</h3>
-                                <p className="mt-2 text-gray-600">Complete pack with Instagram, Facebook and Twitter templates</p>
-                                <div className="mt-4 flex items-center justify-between">
-                                    <span className="font-bold text-indigo-600">$29.99</span>
-                                    <button className="rounded-lg bg-indigo-600 px-4 py-2 text-sm font-semibold text-white hover:bg-indigo-700">
-                                        Add to Cart
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-
-                        {/* Card 2 */}
-                        <div className="group overflow-hidden rounded-lg bg-white shadow-md transition hover:shadow-xl">
-                            <div className="relative h-60 overflow-hidden">
-                                <img
-                                    src="https://placehold.co/600x400/purple/white?text=Presentation"
-                                    alt="Presentation Template"
-                                    className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
-                                />
-                            </div>
-                            <div className="p-6">
-                                <h3 className="text-xl font-bold text-gray-900">Presentation Template</h3>
-                                <p className="mt-2 text-gray-600">Professional presentation templates for business and education</p>
-                                <div className="mt-4 flex items-center justify-between">
-                                    <span className="font-bold text-indigo-600">$19.99</span>
-                                    <button className="rounded-lg bg-indigo-600 px-4 py-2 text-sm font-semibold text-white hover:bg-indigo-700">
-                                        Add to Cart
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-
-                        {/* Card 3 */}
-                        <div className="group overflow-hidden rounded-lg bg-white shadow-md transition hover:shadow-xl">
-                            <div className="relative h-60 overflow-hidden">
-                                <img
-                                    src="https://placehold.co/600x400/pink/white?text=CV+Template"
-                                    alt="CV Template"
-                                    className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
-                                />
-                                <div className="absolute top-4 right-4 rounded-full bg-green-500 px-3 py-1 text-sm font-semibold text-white">New</div>
-                            </div>
-                            <div className="p-6">
-                                <h3 className="text-xl font-bold text-gray-900">CV Template</h3>
-                                <p className="mt-2 text-gray-600">Stand out with our professional resume templates</p>
-                                <div className="mt-4 flex items-center justify-between">
-                                    <span className="font-bold text-indigo-600">$15.99</span>
-                                    <button className="rounded-lg bg-indigo-600 px-4 py-2 text-sm font-semibold text-white hover:bg-indigo-700">
-                                        Add to Cart
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
+                        )}
                     </div>
 
                     <div className="mt-12 text-center">
                         <a
-                            href="#"
+                            href="/products"
                             className="inline-block rounded-lg border border-indigo-600 px-6 py-3 text-lg font-semibold text-indigo-600 transition hover:bg-indigo-600 hover:text-white"
                         >
-                            View All Templates
+                            Lihat Semua Produk
                         </a>
                     </div>
                 </div>

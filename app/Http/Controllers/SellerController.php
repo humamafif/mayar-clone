@@ -54,6 +54,6 @@ class SellerController extends Controller
             'account_number' => $validated['account_number'],
         ]);
 
-        return redirect()->route('dashboard')->with('success', 'Selamat! Anda sekarang telah menjadi seller.');
+        return redirect()->route('seller.dashboard')->with('success', 'Selamat! Anda sekarang telah menjadi seller.');
     }
 }
