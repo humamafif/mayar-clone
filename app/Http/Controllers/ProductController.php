@@ -36,46 +36,47 @@ class ProductController extends Controller
      */
     public function store(Request $request)
     {
-
         $request->validate([
             'name' => 'required|string|max:255',
             'description' => 'required|string',
             'price' => 'required|numeric|min:0',
             'stock' => 'required|integer|min:0',
-            'image' => 'image|mimes:jpg,jpeg,png|max:2048',
+            'image' => 'required|image|mimes:jpg,jpeg,png|max:2048',
         ]);
 
         $imagePath = $request->file('image')->store('products', 'public');
 
-        $data = $request->all();
-        $data['image'] = $imagePath;
-
         $seller = $request->user()->seller;
-        Product::create([
-            'seller_id' => $seller->id,
-            'image' => $data['image'],
-            'name' => $data['name'],
-            'description' => $data['description'],
-            'price' => $data['price'],
-            'stock' => $data['stock'],
+
+     
+        $seller->products()->create([
+            'image' => $imagePath,
+            'name' => $request->name,
+            'description' => $request->description,
+            'price' => $request->price,
+            'stock' => $request->stock,
         ]);
 
-        return redirect()->route('products.index')
+        
+        return redirect()->route('seller.products.index')
             ->with('success', 'Produk berhasil ditambahkan.');
-        dd(session()->all());
     }
 
     /**
      * Display the specified resource.
      */
-    public function show(Product $product) {}
+    public function show(Product $product)
+    {
+
+    }
 
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(string $id)
+    public function edit(Product $product) 
     {
-        $product = Product::findOrFail($id);
+       
+
         return Inertia::render('seller/products/edit', [
             'product' => $product
         ]);
@@ -84,52 +85,54 @@ class ProductController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $id)
+    public function update(Request $request, Product $product) 
     {
+     
+
         $request->validate([
             'name' => 'required|string|max:255',
             'description' => 'required|string',
             'price' => 'required|numeric|min:0',
             'stock' => 'required|integer|min:0',
-            'image' => 'image|mimes:jpg,jpeg,png|max:2048',
+            'image' => 'nullable|image|mimes:jpg,jpeg,png|max:2048', 
         ]);
 
-        $product = Product::findOrFail($id);
+        $imagePath = $product->image; 
 
         if ($request->hasFile('image')) {
-            // Delete old image
-            Storage::disk('public')->delete($product->image);
+           
+            if ($product->image) {
+                Storage::disk('public')->delete($product->image);
+            }
+           
             $imagePath = $request->file('image')->store('products', 'public');
-            $product->update([
-                'image' => $imagePath,
-                'name' => $request->name,
-                'description' => $request->description,
-                'price' => $request->price,
-                'stock' => $request->stock,
-            ]);
-        } else {
-            $product->update([
-                'name' => $request->name,
-                'description' => $request->description,
-                'price' => $request->price,
-                'stock' => $request->stock,
-            ]);
         }
 
-        return redirect()->route('products.index')
+        $product->update([
+            'image' => $imagePath,
+            'name' => $request->name,
+            'description' => $request->description,
+            'price' => $request->price,
+            'stock' => $request->stock,
+        ]);
+
+        return redirect()->route('seller.products.index')
             ->with('success', 'Produk berhasil diperbarui.');
     }
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(string $id)
+    public function destroy(Product $product) 
     {
-        $product = Product::findOrFail($id);
-        Storage::disk('public')->delete($product->image);
+    
+        if ($product->image) {
+            Storage::disk('public')->delete($product->image);
+        }
+        
         $product->delete();
-        $redirect =  redirect()->route('products.index')
+        
+        return redirect()->route('seller.products.index')
             ->with('success', 'Produk berhasil dihapus.');
-        return $redirect;
     }
 }

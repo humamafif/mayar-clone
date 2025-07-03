@@ -6,12 +6,12 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from '@/compon
 import { NavigationMenu, NavigationMenuItem, NavigationMenuList, navigationMenuTriggerStyle } from '@/components/ui/navigation-menu';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
-import { UserMenuContent } from '@/components/user-menu-content';
+import { UserMenuContent } from '@/components/user-menu-content'; 
 import { useInitials } from '@/hooks/use-initials';
 import { cn } from '@/lib/utils';
 import { type BreadcrumbItem, type NavItem, type SharedData } from '@/types';
 import { Link, usePage } from '@inertiajs/react';
-import { LayoutGrid, Menu, ShoppingBag } from 'lucide-react';
+import { LayoutGrid, Menu, ShoppingBag, ClipboardList } from 'lucide-react';
 import AppLogo from './app-logo';
 import AppLogoIcon from './app-logo-icon';
 
@@ -21,13 +21,24 @@ const sellerNavItems: NavItem[] = [
         href: '/seller/dashboard',
         icon: LayoutGrid,
     },
+    {
+        title: 'Transaksi',
+        href: '/seller/orders',
+        icon: ClipboardList,
+    },
 ];
+
 
 const publicNavItems: NavItem[] = [
     {
         title: 'Products',
         href: '/products',
         icon: ShoppingBag,
+    },
+    {
+        title: 'Orders',
+        href: '/order', 
+        icon: ClipboardList, 
     },
 ];
 
@@ -69,7 +80,7 @@ export function AppHeader({ breadcrumbs = [] }: AppHeaderProps) {
                                                     <span>{item.title}</span>
                                                 </Link>
                                             ))}
-                                            {auth.user &&
+                                            {auth?.user && // ✅ Gunakan optional chaining
                                                 auth.user.role === 'seller' &&
                                                 sellerNavItems.map((item) => (
                                                     <Link key={item.title} href={item.href} className="flex items-center space-x-2 font-medium">
@@ -94,8 +105,7 @@ export function AppHeader({ breadcrumbs = [] }: AppHeaderProps) {
                                             ))}
                                         </div>
 
-                                        {/* Tambahkan tombol login/register di mobile */}
-                                        {!auth.user && (
+                                        {!auth?.user && ( 
                                             <div className="mt-4 flex flex-col space-y-2">
                                                 <Link
                                                     href={route('login')}
@@ -121,7 +131,6 @@ export function AppHeader({ breadcrumbs = [] }: AppHeaderProps) {
                         <AppLogo />
                     </Link>
 
-                    {/* Desktop Navigation */}
                     <div className="ml-6 hidden h-full items-center space-x-6 lg:flex">
                         <NavigationMenu className="flex h-full items-stretch">
                             <NavigationMenuList className="flex h-full items-stretch space-x-2">
@@ -144,7 +153,7 @@ export function AppHeader({ breadcrumbs = [] }: AppHeaderProps) {
                                     </NavigationMenuItem>
                                 ))}
 
-                                {auth.user &&
+                                {auth?.user && 
                                     auth.user.role === 'seller' &&
                                     sellerNavItems.map((item, index) => (
                                         <NavigationMenuItem key={`seller-${index}`} className="relative flex h-full items-center">
@@ -194,7 +203,7 @@ export function AppHeader({ breadcrumbs = [] }: AppHeaderProps) {
                             </div>
                         </div>
 
-                        {auth.user ? (
+                        {auth?.user ? ( 
                             <DropdownMenu>
                                 <DropdownMenuTrigger asChild>
                                     <Button variant="ghost" className="size-10 rounded-full p-1">
@@ -207,7 +216,7 @@ export function AppHeader({ breadcrumbs = [] }: AppHeaderProps) {
                                     </Button>
                                 </DropdownMenuTrigger>
                                 <DropdownMenuContent className="w-56" align="end">
-                                    <UserMenuContent user={auth.user} />
+                                    <UserMenuContent user={auth.user} /> 
                                 </DropdownMenuContent>
                             </DropdownMenu>
                         ) : (

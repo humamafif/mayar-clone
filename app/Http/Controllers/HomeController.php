@@ -8,9 +8,13 @@ use Inertia\Inertia;
 
 class HomeController extends Controller
 {
+    /**
+     * Menampilkan halaman daftar semua produk.
+     */
     public function products()
     {
         $products = Product::with('seller')
+            ->latest()
             ->get();
 
         return Inertia::render('products/index', [
@@ -18,15 +22,25 @@ class HomeController extends Controller
         ]);
     }
 
-    public function productDetail($id)
+    /**
+     * Menampilkan halaman detail satu produk.
+     *
+     * @param  \App\Models\Product  $product
+     * @return \Inertia\Response
+     */
+    public function productDetail(Product $product)
     {
-        $product = Product::with(['seller.user'])->findOrFail($id);
+        // Muat relasi seller untuk produk utama
+        $product->load('seller.user');
+
         $relatedProducts = Product::with('seller')
             ->where('seller_id', $product->seller_id)
             ->where('id', '!=', $product->id)
-            ->take(3)
+            ->inRandomOrder()
+            ->limit(3)
             ->get();
 
+        // Render halaman detail
         return Inertia::render('products/detail', [
             'product' => $product,
             'relatedProducts' => $relatedProducts

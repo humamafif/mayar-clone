@@ -1,4 +1,5 @@
-import { Product, ProductCard } from '@/components/product-card';
+import type { Product } from '@/types/product'; 
+import { ProductCard } from '@/components/product-card'; 
 import AppLayout from '@/layouts/app-layout';
 import { Head } from '@inertiajs/react';
 

@@ -33,14 +33,14 @@ export function UserMenuContent({ user }: UserMenuContentProps) {
                         Settings
                     </Link>
                 </DropdownMenuItem>
-                {auth.user && auth.user.role != 'seller' &&(
-                    <DropdownMenuItem asChild>
-                        <Link className="block w-full" href={route('seller.join')} as="button" prefetch onClick={cleanup}>
-                            <Store className="mr-2" />
-                            Daftar sebagai Seller
-                        </Link>
-                    </DropdownMenuItem>
-                )}
+                {auth?.user && auth.user.role !== 'seller' && (
+    <DropdownMenuItem asChild>
+        <Link className="block w-full" href={route('seller.join')} as="button" prefetch onClick={cleanup}>
+            <Store className="mr-2" />
+            Daftar sebagai Seller
+        </Link>
+    </DropdownMenuItem>
+)}
             </DropdownMenuGroup>
             <DropdownMenuSeparator />
             <DropdownMenuItem asChild>

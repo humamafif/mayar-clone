@@ -1,12 +1,14 @@
-import { ProductCard, type Product } from '@/components/product-card';
+import { ProductCard } from '@/components/product-card';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import AppLayout from '@/layouts/app-layout';
 import { formatRupiah } from '@/lib/utils';
-import { SharedData } from '@/types';
-import { Head, usePage } from '@inertiajs/react';
+import { PageProps, SharedData, type Product } from '@/types';
+import { Head, router, usePage } from '@inertiajs/react';
 import { Minus, Plus, ShoppingBag, Store } from 'lucide-react';
 import { useState } from 'react';
+import axios from 'axios'; 
+
 
 interface SellerDetails {
     user: {
@@ -22,15 +24,26 @@ interface ProductDetailProps {
     relatedProducts: Product[];
 }
 
+interface FlashMessage {
+    url?: string;
+    error?: string;
+    success?: string;
+}
+
 export default function ProductDetail({ product, relatedProducts }: ProductDetailProps) {
     const [quantity, setQuantity] = useState(1);
+    const [processing, setProcessing] = useState(false);
     const { auth } = usePage<SharedData>().props;
-    const isLoggedIn = !!auth.user;
-    const isButtonDisabled = product.stock === 0 || !isLoggedIn;
+    const isLoggedIn = !!auth?.user;
+
+    const isButtonDisabled = product.stock === 0 || !isLoggedIn || processing;
+
     const getButtonText = () => {
+        if (processing) return 'Memproses...';
         if (product.stock === 0) return 'Stok Habis';
-        return 'Tambahkan ke Keranjang';
+        return 'Beli Sekarang & Bayar';
     };
+
     const increaseQuantity = () => {
         if (quantity < product.stock) {
             setQuantity(quantity + 1);
@@ -43,14 +56,42 @@ export default function ProductDetail({ product, relatedProducts }: ProductDetai
         }
     };
 
+    const handlePurchase = async () => {
+        if (!isLoggedIn) {
+            router.visit('/login');
+            return;
+        }
+    
+        const data = {
+            product_id: product.id,
+            quantity: quantity,
+        };
+    
+        try {
+            setProcessing(true);
+            const response = await axios.post('/order', data);
+    
+            const url = response.data?.invoice_url;
+            if (url) {
+                window.location.href = url;
+            } else {
+                alert('Gagal mendapatkan invoice URL');
+            }
+        } catch (error: any) {
+            console.error(error);
+            alert('Terjadi kesalahan saat memproses pesanan');
+        } finally {
+            setProcessing(false);
+        }
+    };
+    
+
     return (
         <AppLayout>
             <Head title={product.name} />
 
             <div className="container py-8">
-                {/* Product Detail Section */}
                 <div className="grid grid-cols-1 gap-8 md:grid-cols-2">
-                    {/* Product Image */}
                     <div className="overflow-hidden rounded-lg">
                         <img
                             src={`/storage/${product.image}`}
@@ -62,7 +103,6 @@ export default function ProductDetail({ product, relatedProducts }: ProductDetai
                         />
                     </div>
 
-                    {/* Product Info */}
                     <div className="flex flex-col">
                         <h1 className="text-3xl font-bold">{product.name}</h1>
 
@@ -109,12 +149,7 @@ export default function ProductDetail({ product, relatedProducts }: ProductDetai
                         )}
 
                         <div className="mt-8">
-                            <Button
-                                className="w-full"
-                                disabled={isButtonDisabled}
-                                size="lg"
-                                onClick={() => (isLoggedIn ? console.log('Add to cart') : (window.location.href = '/login'))}
-                            >
+                            <Button className="w-full" disabled={isButtonDisabled} size="lg" onClick={handlePurchase}>
                                 <ShoppingBag className="mr-2 h-5 w-5" />
                                 {getButtonText()}
                             </Button>
@@ -125,14 +160,13 @@ export default function ProductDetail({ product, relatedProducts }: ProductDetai
                                     <a href="/login" className="font-medium text-indigo-600 hover:text-indigo-500">
                                         login
                                     </a>{' '}
-                                    untuk menambahkan produk ke keranjang
+                                    untuk melakukan pembelian
                                 </p>
                             )}
                         </div>
                     </div>
                 </div>
 
-                {/* Related Products */}
                 {relatedProducts.length > 0 && (
                     <div className="mt-16">
                         <h2 className="mb-6 text-2xl font-bold">Produk Terkait</h2>

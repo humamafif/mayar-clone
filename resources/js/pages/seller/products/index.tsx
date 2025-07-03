@@ -19,10 +19,12 @@ const breadcrumb: BreadcrumbItem[] = [
 ];
 
 export default function Products({ products }: { products: Product[] }) {
-    console.log('Products data:', products);
-
-    const { flash } = usePage().props as { flash?: { success?: string; error?: string } };
-    console.log('Flash messages:', flash);
+    const { flash } = usePage().props as {
+        flash?: {
+            success?: string;
+            error?: string;
+        };
+    };
 
     useEffect(() => {
         if (flash?.success) {
@@ -32,6 +34,7 @@ export default function Products({ products }: { products: Product[] }) {
             toast.error(flash.error);
         }
     }, [flash]);
+
     return (
         <AppLayout breadcrumbs={breadcrumb}>
             <Head title="Products" />
@@ -39,10 +42,10 @@ export default function Products({ products }: { products: Product[] }) {
                 <div className="flex items-center justify-between">
                     <div>
                         <h1 className="text-3xl font-bold tracking-tight">Products</h1>
-                        <p className="mt-1 text-muted-foreground">Manage your Product</p>
+                        <p className="mt-1 text-muted-foreground">Manage your products</p>
                     </div>
                     <Button asChild className="whitespace-nowrap">
-                        <Link href={route('products.create')} className="flex items-center gap-2">
+                        <Link href={route('seller.products.create')} className="flex items-center gap-2">
                             <span className="flex items-center gap-2">Add Product</span>
                         </Link>
                     </Button>
