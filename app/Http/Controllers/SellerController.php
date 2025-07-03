@@ -10,13 +10,13 @@ class SellerController extends Controller
 {
     public function storeInfo(Request $request)
     {
-        $user = $request->user();
-        $seller = $user->seller;
+        $seller = $request->user()->seller;
 
         return Inertia::render('seller/store-info', [
             'seller' => $seller
         ]);
     }
+
     public function joinForm()
     {
         return Inertia::render('seller/join');
@@ -36,12 +36,9 @@ class SellerController extends Controller
             'agree_to_terms' => 'required|accepted',
         ]);
 
-        // Update user role
         $user = $request->user();
-        $user->role = 'seller';
-        $user->save();
+        $user->update(['role' => 'seller']);
 
-        // Create seller record
         Seller::create([
             'user_id' => $user->id,
             'shop_name' => $validated['shop_name'],
@@ -55,5 +52,63 @@ class SellerController extends Controller
         ]);
 
         return redirect()->route('seller.dashboard')->with('success', 'Selamat! Anda sekarang telah menjadi seller.');
+    }
+
+    public function dashboard(Request $request)
+    {
+        $seller = $request->user()->seller;
+
+        $products = $seller->products()->with(['orders.user'])->get();
+        $productsCount = $products->count();
+        $balance = $seller->balance;
+
+        $orders = $products->flatMap(function ($product) {
+            return $product->orders->map(function ($order) use ($product) {
+                return [
+                    'id' => $order->id,
+                    'order_code' => $order->order_code,
+                    'product_name' => $product->name,
+                    'quantity' => $order->quantity,
+                    'amount' => $order->amount,
+                    'status' => $order->status,
+                    'buyer_name' => $order->user->name ?? 'N/A',
+                    'created_at' => $order->created_at->format('Y-m-d H:i'),
+                ];
+            });
+        })->sortByDesc('created_at')->values();
+
+        return Inertia::render('seller/dashboard', [
+            'stats' => [
+                'products_count' => $productsCount,
+                'balance' => $balance,
+            ],
+            'orders' => $orders,
+        ]);
+    }
+
+    public function orders(Request $request)
+    {
+        $seller = $request->user()->seller;
+
+        $products = $seller->products()->with(['orders.user'])->get();
+
+        $orders = $products->flatMap(function ($product) {
+            return $product->orders->map(function ($order) use ($product) {
+                return [
+                    'id' => $order->id,
+                    'order_code' => $order->order_code,
+                    'product_name' => $product->name,
+                    'quantity' => $order->quantity,
+                    'amount' => $order->amount,
+                    'status' => $order->status,
+                    'buyer_name' => $order->user->name ?? 'N/A',
+                    'created_at' => $order->created_at->format('Y-m-d H:i'),
+                ];
+            });
+        })->sortByDesc('created_at')->values();
+
+        return Inertia::render('seller/orders', [
+            'orders' => $orders,
+        ]);
     }
 }

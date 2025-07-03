@@ -20,7 +20,9 @@ class Seller extends Model
         'bank_name',
         'bank_account',
         'account_number',
+        'balance', 
     ];
+    
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);

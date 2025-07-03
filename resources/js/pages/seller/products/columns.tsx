@@ -5,7 +5,12 @@ import { ColumnDef } from '@tanstack/react-table';
 import { Edit, MoreHorizontal, Trash } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+import {
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 import { Link, router } from '@inertiajs/react';
 
 export type Product = {
@@ -43,8 +48,7 @@ export const columns: ColumnDef<Product>[] = [
         header: 'Price',
         cell: ({ row }) => {
             const price = parseFloat(row.getValue('price'));
-            const formatted = rupiahFormatter.format(price);
-            return formatted;
+            return rupiahFormatter.format(price);
         },
     },
     {
@@ -62,13 +66,13 @@ export const columns: ColumnDef<Product>[] = [
         header: 'Actions',
         cell: ({ row }) => {
             const product = row.original;
-            const productId = row.original.id;
+            const productId = product.id;
             const productName = product.name;
 
             const handleDelete = (e: React.MouseEvent) => {
                 e.preventDefault();
                 if (confirm(`Are you sure you want to delete "${productName}"?`)) {
-                    router.delete(route('products.destroy', productId));
+                    router.delete(route('seller.products.destroy', { product: productId }));
                 }
             };
 
@@ -83,13 +87,17 @@ export const columns: ColumnDef<Product>[] = [
                     <DropdownMenuContent align="end">
                         <DropdownMenuItem>
                             <Button variant="link" asChild>
-                                <Link href={route('products.edit', productId)}>
+                                <Link href={route('seller.products.edit', { product: productId })}>
                                     <Edit className="mr-2 h-4 w-4" /> Edit
                                 </Link>
                             </Button>
                         </DropdownMenuItem>
                         <DropdownMenuItem>
-                            <Button variant="link" className="text-destructive hover:text-destructive/90" onClick={handleDelete}>
+                            <Button
+                                variant="link"
+                                className="text-destructive hover:text-destructive/90"
+                                onClick={handleDelete}
+                            >
                                 <Trash className="mr-2 h-4 w-4" /> Delete
                             </Button>
                         </DropdownMenuItem>

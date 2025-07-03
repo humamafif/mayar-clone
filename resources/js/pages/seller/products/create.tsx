@@ -43,10 +43,15 @@ export default function CreateProduct() {
             stock: 0,
         },
     });
+
     function onSubmit(values: z.infer<typeof formSchema>) {
-        console.log(values);
-        router.post(route('products.store'), values);
+        // ✅ PERBAIKAN: Gunakan nama rute yang benar, yaitu 'seller.products.store'
+        router.post(route('seller.products.store'), values, {
+            onStart: () => console.log('Submitting...'),
+            onFinish: () => form.reset(), // Reset form setelah selesai
+        });
     }
+
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Create Product" />
@@ -143,7 +148,10 @@ export default function CreateProduct() {
                                     </FormItem>
                                 )}
                             />
-                            <Button type="submit">Submit</Button>
+                            {/* Menonaktifkan tombol saat form sedang diproses */}
+                            <Button type="submit" disabled={form.formState.isSubmitting}>
+                                {form.formState.isSubmitting ? 'Submitting...' : 'Submit'}
+                            </Button>
                         </form>
                     </Form>
                 </div>

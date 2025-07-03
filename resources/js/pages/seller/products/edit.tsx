@@ -1,5 +1,12 @@
 import { Button } from '@/components/ui/button';
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
+import {
+    Form,
+    FormControl,
+    FormField,
+    FormItem,
+    FormLabel,
+    FormMessage,
+} from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import AppLayout from '@/layouts/app-layout';
 import { parseRupiah, rupiahFormatter } from '@/lib/utils';
@@ -10,23 +17,8 @@ import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { Product } from './columns';
 
-const breadcrumbs: BreadcrumbItem[] = [
-    {
-        title: 'Seller Dashboard',
-        href: '/seller',
-    },
-    {
-        title: 'Products',
-        href: '/seller/products',
-    },
-    {
-        title: 'Edit Product',
-        href: '/seller/products/edit',
-    },
-];
-
 const formSchema = z.object({
-    image: z.any(),
+    image: z.any().optional(),
     name: z.string().min(1, 'Product name is required'),
     description: z.string().min(1, 'Product description is required'),
     price: z.number().min(0, 'Price must be a positive number'),
@@ -34,6 +26,12 @@ const formSchema = z.object({
 });
 
 export default function EditProduct({ product }: { product: Product }) {
+    const breadcrumbs: BreadcrumbItem[] = [
+        { title: 'Seller Dashboard', href: '/seller' },
+        { title: 'Products', href: '/seller/products' },
+        { title: `Edit: ${product.name}`, href: `/seller/products/${product.id}/edit` },
+    ];
+
     const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
         defaultValues: {
@@ -44,24 +42,28 @@ export default function EditProduct({ product }: { product: Product }) {
             stock: product.stock,
         },
     });
-    function onSubmit(values: z.infer<typeof formSchema>) {
+
+    const onSubmit = (values: z.infer<typeof formSchema>) => {
         const formData = new FormData();
         formData.append('name', values.name);
         formData.append('description', values.description);
         formData.append('price', values.price.toString());
         formData.append('stock', values.stock.toString());
+
         if (values.image && values.image instanceof File) {
             formData.append('image', values.image);
         }
-        formData.append('_method', 'PUT');
-        router.post(route('products.update', { id: product.id }), formData);
-    }
+
+        formData.append('_method', 'PUT'); // important for PUT request in Laravel
+        router.post(route('seller.products.update', { product: product.id }), formData);
+    };
+
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
-            <Head title="Edit Product" />
+            <Head title={`Edit Product: ${product.name}`} />
             <div className="flex flex-1 flex-col gap-4 rounded-xl p-4">
-                <div className="rounded-xl border border-sidebar-border/700 p-8 md:p-8 dark:border-sidebar-border">
-                    <h1 className="text-2xl font-semibold">Edit Product</h1>
+                <div className="rounded-xl border border-border p-8">
+                    <h1 className="text-2xl font-semibold mb-6">Edit Product</h1>
                     <Form {...form}>
                         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
                             <FormField
@@ -92,7 +94,7 @@ export default function EditProduct({ product }: { product: Product }) {
                                                 }}
                                             />
                                         </FormControl>
-                                        <p className="text-sm text-gray-500">Leave empty to keep the current image</p>
+                                        <p className="text-sm text-gray-500">Kosongkan jika tidak ingin mengubah gambar</p>
                                         <FormMessage />
                                     </FormItem>
                                 )}
@@ -104,7 +106,7 @@ export default function EditProduct({ product }: { product: Product }) {
                                     <FormItem>
                                         <FormLabel>Product Name</FormLabel>
                                         <FormControl>
-                                            <Input placeholder="Input your product name" {...field} />
+                                            <Input placeholder="Enter product name" {...field} />
                                         </FormControl>
                                         <FormMessage />
                                     </FormItem>
@@ -117,7 +119,7 @@ export default function EditProduct({ product }: { product: Product }) {
                                     <FormItem>
                                         <FormLabel>Product Description</FormLabel>
                                         <FormControl>
-                                            <Input placeholder="Input your product description" {...field} />
+                                            <Input placeholder="Enter product description" {...field} />
                                         </FormControl>
                                         <FormMessage />
                                     </FormItem>
@@ -128,13 +130,11 @@ export default function EditProduct({ product }: { product: Product }) {
                                 name="stock"
                                 render={({ field }) => (
                                     <FormItem>
-                                        <FormLabel>Product Stock</FormLabel>
+                                        <FormLabel>Stock</FormLabel>
                                         <FormControl>
                                             <Input
-                                                placeholder="Input your product stock"
                                                 type="number"
                                                 {...field}
-                                                value={field.value}
                                                 onChange={(e) => field.onChange(Number(e.target.value))}
                                             />
                                         </FormControl>
@@ -147,12 +147,11 @@ export default function EditProduct({ product }: { product: Product }) {
                                 name="price"
                                 render={({ field }) => (
                                     <FormItem>
-                                        <FormLabel>Product Price</FormLabel>
+                                        <FormLabel>Price</FormLabel>
                                         <FormControl>
                                             <Input
                                                 type="text"
-                                                {...field}
-                                                placeholder="Input your product price"
+                                                placeholder="Input product price"
                                                 value={rupiahFormatter.format(field.value || 0)}
                                                 onChange={(e) => field.onChange(parseRupiah(e.target.value))}
                                                 autoComplete="off"
@@ -162,7 +161,7 @@ export default function EditProduct({ product }: { product: Product }) {
                                     </FormItem>
                                 )}
                             />
-                            <Button type="submit">Submit</Button>
+                            <Button type="submit">Update Product</Button>
                         </form>
                     </Form>
                 </div>
