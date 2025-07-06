@@ -118,7 +118,7 @@ export default function Welcome({ products = [] }: { products: Product[] }) {
                             </div>
                             <div className="absolute top-8 -left-4 z-0 hidden -rotate-6 transform rounded-lg bg-white p-2 shadow-xl md:block">
                                 <img
-                                    src="/images/digital-store.jpg"
+                                    src="/images/card-hero-section.jpeg"
                                     alt="Toko Digital"
                                     className="h-48 w-full rounded object-cover"
                                     onError={(e) => {

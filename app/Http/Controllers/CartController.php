@@ -15,23 +15,47 @@ use Inertia\Inertia;
 
 class CartController extends Controller
 {
-    public function add(Request $request)
+    public function store(Request $request)
     {
         $request->validate([
             'product_id' => 'required|exists:products,id',
+            'quantity' => 'required|integer|min:1'
         ]);
+        $userId =  Auth::id();
 
-        Cart::updateOrCreate(
-            [
-                'user_id' => Auth::id(),
-                'product_id' => $request->product_id
-            ],
-            [
-                'quantity' => DB::raw('quantity + 1')
-            ]
-        );
+        $cartItem = Cart::where('user_id', $userId)
+            ->where('product_id', $request->product_id)
+            ->where('status', 'active')
+            ->first();
+
+        if ($cartItem) {
+            $cartItem->quantity += $request->quantity;
+            $cartItem->save();
+        } else {
+            Cart::create([
+                'user_id' => $userId,
+                'product_id' => $request->product_id,
+                'quantity' => $request->quantity,
+                'status' => 'active',
+            ]);
+        }
 
         return redirect()->back()->with('message', 'Produk berhasil ditambahkan ke keranjang.');
+    }
+
+    public function getCart()
+    {
+        if (!Auth::check()) {
+            return response()->json([], 200); // Kembalikan array kosong jika belum login
+        }
+
+        $userId =  Auth::id();
+        $cart = Cart::with('product')
+            ->where('user_id', $userId)
+            ->where('status', 'active')
+            ->get();
+
+        return response()->json($cart);
     }
 
     public function index()
@@ -40,9 +64,23 @@ class CartController extends Controller
             ->where('user_id', Auth::id())
             ->get();
 
-        return Inertia::render('Cart/Index', [
+        return Inertia::render('cart/index', [
             'cartItems' => $cartItems
         ]);
+    }
+
+    public function cancel($id)
+    {
+        $userId = Auth::id();
+        $cartItem = Cart::where('id', $id)
+            ->where('user_id', $userId)
+            ->where('status', 'active')
+            ->firstOrFail();
+
+        $cartItem->status = 'cancelled';
+        $cartItem->save();
+
+        return redirect()->back()->with('success', 'Produk berhasil dihapus dari keranjang!');
     }
 
     public function remove($id)
@@ -51,7 +89,7 @@ class CartController extends Controller
             ->where('user_id', Auth::id())
             ->delete();
 
-        return redirect()->route('cart.index')->with('message', 'Produk dihapus dari keranjang');
+        return redirect()->route('home')->with('message', 'Produk dihapus dari keranjang');
     }
 
     public function checkout()
@@ -60,12 +98,12 @@ class CartController extends Controller
         $cartItems = Cart::with('product')->where('user_id', $user->id)->get();
 
         if ($cartItems->isEmpty()) {
-            return redirect()->route('cart.index')->with('error', 'Keranjang kosong');
+            return redirect()->route('home')->with('error', 'Keranjang kosong');
         }
 
-        $totalAmount = $cartItems->sum(fn ($item) => $item->product->price);
+        $totalAmount = $cartItems->sum(fn($item) => $item->product->price);
 
-        Configuration::setXenditKey(config('services.xendit.secret_key'));
+        // Configuration::setXenditKey(config('services.xendit.secret_key'));
         $apiInstance = new InvoiceApi();
         $externalId = 'invoice-' . time();
 

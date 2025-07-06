@@ -58,21 +58,21 @@ class SellerController extends Controller
     {
         $seller = $request->user()->seller;
 
-        $products = $seller->products()->with(['orders.user'])->get();
+        $products = $seller->products()->with(['invoiceItems.invoice.user'])->get();
         $productsCount = $products->count();
         $balance = $seller->balance;
 
-        $orders = $products->flatMap(function ($product) {
-            return $product->orders->map(function ($order) use ($product) {
+        $invoices = $products->flatMap(function ($product) {
+            return $product->invoiceItems->map(function ($item) use ($product) {
                 return [
-                    'id' => $order->id,
-                    'order_code' => $order->order_code,
+                    'id' => $item->invoice->id,
+                    'invoice_code' => $item->invoice->invoice_code,
                     'product_name' => $product->name,
-                    'quantity' => $order->quantity,
-                    'amount' => $order->amount,
-                    'status' => $order->status,
-                    'buyer_name' => $order->user->name ?? 'N/A',
-                    'created_at' => $order->created_at->format('Y-m-d H:i'),
+                    'quantity' => $item->quantity,
+                    'amount' => $item->price * $item->quantity,
+                    'status' => $item->invoice->status,
+                    'buyer_name' => $item->invoice->user->name ?? 'N/A',
+                    'created_at' => $item->invoice->created_at->format('Y-m-d H:i'),
                 ];
             });
         })->sortByDesc('created_at')->values();
@@ -82,33 +82,32 @@ class SellerController extends Controller
                 'products_count' => $productsCount,
                 'balance' => $balance,
             ],
-            'orders' => $orders,
+            'orders' => $invoices,
         ]);
     }
-
-    public function orders(Request $request)
+    public function invoices(Request $request)
     {
         $seller = $request->user()->seller;
 
-        $products = $seller->products()->with(['orders.user'])->get();
+        $products = $seller->products()->with(['invoiceItems.invoice.user'])->get();
 
-        $orders = $products->flatMap(function ($product) {
-            return $product->orders->map(function ($order) use ($product) {
+        $invoices = $products->flatMap(function ($product) {
+            return $product->invoiceItems->map(function ($item) use ($product) {
                 return [
-                    'id' => $order->id,
-                    'order_code' => $order->order_code,
+                    'id' => $item->invoice->id,
+                    'invoice_code' => $item->invoice->invoice_code,
                     'product_name' => $product->name,
-                    'quantity' => $order->quantity,
-                    'amount' => $order->amount,
-                    'status' => $order->status,
-                    'buyer_name' => $order->user->name ?? 'N/A',
-                    'created_at' => $order->created_at->format('Y-m-d H:i'),
+                    'quantity' => $item->quantity,
+                    'amount' => $item->price * $item->quantity,
+                    'status' => $item->invoice->status,
+                    'buyer_name' => $item->invoice->user->name ?? 'N/A',
+                    'created_at' => $item->invoice->created_at->format('Y-m-d H:i'),
                 ];
             });
         })->sortByDesc('created_at')->values();
 
         return Inertia::render('seller/orders', [
-            'orders' => $orders,
+            'orders' => $invoices
         ]);
     }
 }

@@ -1,5 +1,5 @@
 import { Button } from '@/components/ui/button';
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
+import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import AppLayout from '@/layouts/app-layout';
 import { parseRupiah, rupiahFormatter } from '@/lib/utils';
@@ -30,6 +30,8 @@ const formSchema = z.object({
     description: z.string().min(1, 'Product description is required'),
     price: z.number().min(0, 'Price must be a positive number'),
     stock: z.number().int().min(0, 'Stock must be a non-negative integer'),
+    file: z.any().optional(),
+    external_url: z.string().url('Must be a valid URL').optional().or(z.literal('')),
 });
 
 export default function CreateProduct() {
@@ -41,15 +43,22 @@ export default function CreateProduct() {
             description: '',
             price: 0,
             stock: 0,
+            file: null,
+            external_url: '',
         },
     });
 
     function onSubmit(values: z.infer<typeof formSchema>) {
-        // ✅ PERBAIKAN: Gunakan nama rute yang benar, yaitu 'seller.products.store'
-        router.post(route('seller.products.store'), values, {
-            onStart: () => console.log('Submitting...'),
-            onFinish: () => form.reset(), // Reset form setelah selesai
-        });
+        const formData = new FormData();
+
+        if (values.image) formData.append('image', values.image);
+        formData.append('name', values.name);
+        formData.append('description', values.description);
+        formData.append('price', values.price.toString());
+        formData.append('stock', values.stock.toString());
+        if (values.file) formData.append('file', values.file);
+        if (values.external_url) formData.append('external_url', values.external_url);
+        router.post(route('seller.products.store'), formData);
     }
 
     return (
@@ -148,7 +157,44 @@ export default function CreateProduct() {
                                     </FormItem>
                                 )}
                             />
-                            {/* Menonaktifkan tombol saat form sedang diproses */}
+                            <FormField
+                                control={form.control}
+                                name="file"
+                                render={({ field }) => (
+                                    <FormItem>
+                                        <FormLabel>Downloadable File (Optional)</FormLabel>
+                                        <FormControl>
+                                            <Input
+                                                type="file"
+                                                accept=".pdf,.zip,.rar,.doc,.docx,.xls,.xlsx,.ppt,.pptx"
+                                                onChange={(e) => {
+                                                    const file = e.target.files?.[0];
+                                                    if (file) {
+                                                        field.onChange(file);
+                                                    }
+                                                }}
+                                            />
+                                        </FormControl>
+                                        <FormDescription>Upload file yang akan bisa diunduh pembeli setelah pembelian berhasil</FormDescription>
+                                        <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
+
+                            <FormField
+                                control={form.control}
+                                name="external_url"
+                                render={({ field }) => (
+                                    <FormItem>
+                                        <FormLabel>External URL (Optional)</FormLabel>
+                                        <FormControl>
+                                            <Input placeholder="https://example.com/resource" {...field} />
+                                        </FormControl>
+                                        <FormDescription>Link yang akan diberikan kepada pembeli setelah pembelian berhasil</FormDescription>
+                                        <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
                             <Button type="submit" disabled={form.formState.isSubmitting}>
                                 {form.formState.isSubmitting ? 'Submitting...' : 'Submit'}
                             </Button>

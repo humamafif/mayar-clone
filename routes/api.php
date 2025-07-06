@@ -1,8 +1,7 @@
 <?php
 
+use App\Http\Controllers\InvoiceController;
 use Illuminate\Support\Facades\Route;
 
-use App\Http\Controllers\OrderController;
-
 // Route Webhook Xendit
-Route::post('/xendit/callback', [OrderController::class, 'callbackXendit'])->name('xendit.webhook');
+Route::post('/xendit/callback', [InvoiceController::class, 'callbackXendit'])->name('xendit.webhook');
