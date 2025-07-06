@@ -15,11 +15,12 @@ return new class extends Migration
             $table->id();
             $table->foreignId('user_id')->constrained()->onDelete('cascade');
             $table->foreignId('product_id')->constrained()->onDelete('cascade');
+            $table->enum('status', ['active', 'ordered', 'cancelled'])->default('active');
             $table->integer('quantity')->default(1);
             $table->timestamps();
         });
     }
-    
+
 
     /**
      * Reverse the migrations.

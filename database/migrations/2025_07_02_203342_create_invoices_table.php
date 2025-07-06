@@ -11,9 +11,10 @@ return new class extends Migration {
             $table->id();
             $table->foreignId('user_id')->constrained()->onDelete('cascade');
             $table->string('external_id')->unique();
+            $table->string('invoice_code')->unique();
             $table->decimal('amount', 12, 2);
             $table->string('status')->default('PENDING');
-            $table->string('invoice_url');
+            $table->string('invoice_url')->nullable();
             $table->timestamps();
         });
     }

@@ -1,9 +1,9 @@
 import { formatRupiah } from '@/lib/utils';
+import type { Product } from '@/types/product';
 import { Link, router } from '@inertiajs/react';
 import { ShoppingBag, ShoppingCart } from 'lucide-react';
 import { useState } from 'react';
-import { toast } from 'sonner'; 
-import type { Product } from '@/types/product';
+import { toast } from 'sonner';
 
 interface ProductCardProps {
     product: Product;
@@ -16,8 +16,8 @@ export function ProductCard({ product }: ProductCardProps) {
         e.preventDefault();
 
         router.post(
-            '/cart/add',
-            { product_id: product.id },
+            route('cart.store'),
+            { product_id: product.id, quantity: 1 },
             {
                 preserveScroll: true,
                 onStart: () => setProcessing(true),
@@ -35,7 +35,7 @@ export function ProductCard({ product }: ProductCardProps) {
     return (
         <Link
             href={route('products.detail', product.id)}
-            className="block group overflow-hidden rounded-lg bg-white shadow-md transition hover:shadow-xl"
+            className="group block overflow-hidden rounded-lg bg-white shadow-md transition hover:shadow-xl"
         >
             <div className="relative h-60 overflow-hidden">
                 <img
@@ -47,9 +47,7 @@ export function ProductCard({ product }: ProductCardProps) {
                     }}
                 />
                 {product.stock === 0 && (
-                    <div className="absolute top-4 right-4 rounded-full bg-red-500 px-3 py-1 text-sm font-semibold text-white">
-                        Habis
-                    </div>
+                    <div className="absolute top-4 right-4 rounded-full bg-red-500 px-3 py-1 text-sm font-semibold text-white">Habis</div>
                 )}
             </div>
             <div className="p-6">
@@ -62,7 +60,7 @@ export function ProductCard({ product }: ProductCardProps) {
                     <span className="font-bold text-amber-500">{formatRupiah(product.price)}</span>
                     <button
                         onClick={handleAddToCart}
-                        className="rounded-lg bg-indigo-600 px-3 py-2 text-sm font-semibold text-white hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                        className="rounded-lg bg-indigo-600 px-3 py-2 text-sm font-semibold text-white hover:bg-indigo-700 disabled:cursor-not-allowed disabled:opacity-50"
                         disabled={product.stock === 0 || processing}
                     >
                         {processing ? (
