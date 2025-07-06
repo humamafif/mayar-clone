@@ -2,7 +2,7 @@
 
 namespace App\Providers;
 
-use Illuminate\Support\Facades\URL; 
+use Illuminate\Support\Facades\URL;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -12,9 +12,11 @@ class AppServiceProvider extends ServiceProvider
      *
      * @return void
      */
-    public function register()
+    public function register(): void
     {
-        //
+        if (env(key: 'APP_ENV') !== 'local') {
+            URL::forceScheme(scheme: 'https');
+        }
     }
 
     /**
@@ -22,11 +24,5 @@ class AppServiceProvider extends ServiceProvider
      *
      * @return void
      */
-    public function boot()
-    {
-
-        if (config('app.env') === 'production' || config('app.env') === 'development') {
-            URL::forceScheme('https');
-        }
-    }
+    public function boot() {}
 }

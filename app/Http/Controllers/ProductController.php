@@ -42,22 +42,30 @@ class ProductController extends Controller
             'price' => 'required|numeric|min:0',
             'stock' => 'required|integer|min:0',
             'image' => 'required|image|mimes:jpg,jpeg,png|max:2048',
+            'file' => 'nullable|file|max:10240',
+            'external_url' => 'nullable|url|max:255',
         ]);
 
         $imagePath = $request->file('image')->store('products', 'public');
 
         $seller = $request->user()->seller;
 
-     
+        $filePath = null;
+        if ($request->hasFile('file')) {
+            $filePath = $request->file('file')->store('product_files', 'public');
+        }
+
         $seller->products()->create([
             'image' => $imagePath,
             'name' => $request->name,
             'description' => $request->description,
             'price' => $request->price,
             'stock' => $request->stock,
+            'file_path' => $filePath,
+            'external_url' => $request->external_url ?? null,
         ]);
 
-        
+
         return redirect()->route('seller.products.index')
             ->with('success', 'Produk berhasil ditambahkan.');
     }
@@ -65,17 +73,14 @@ class ProductController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(Product $product)
-    {
-
-    }
+    public function show(Product $product) {}
 
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(Product $product) 
+    public function edit(Product $product)
     {
-       
+
 
         return Inertia::render('seller/products/edit', [
             'product' => $product
@@ -85,27 +90,36 @@ class ProductController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, Product $product) 
+    public function update(Request $request, Product $product)
     {
-     
+
 
         $request->validate([
             'name' => 'required|string|max:255',
             'description' => 'required|string',
             'price' => 'required|numeric|min:0',
             'stock' => 'required|integer|min:0',
-            'image' => 'nullable|image|mimes:jpg,jpeg,png|max:2048', 
+            'image' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
+            'file' => 'nullable|file|max:10240',
+            'external_url' => 'nullable|url|max:255',
         ]);
 
-        $imagePath = $product->image; 
+        $imagePath = $product->image;
 
         if ($request->hasFile('image')) {
-           
+
             if ($product->image) {
                 Storage::disk('public')->delete($product->image);
             }
-           
+
             $imagePath = $request->file('image')->store('products', 'public');
+        }
+        if ($request->hasFile('file')) {
+            if ($product->file_path) {
+                Storage::disk('public')->delete($product->file_path);
+            }
+            $filePath = $request->file('file')->store('product_files', 'public');
+            $validated['file_path'] = $filePath;
         }
 
         $product->update([
@@ -114,6 +128,8 @@ class ProductController extends Controller
             'description' => $request->description,
             'price' => $request->price,
             'stock' => $request->stock,
+            'file_path' => $request->hasFile('file') ? $filePath : $product->file_path,
+            'external_url' => $request->external_url ?? $product->external_url,
         ]);
 
         return redirect()->route('seller.products.index')
@@ -123,15 +139,15 @@ class ProductController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Product $product) 
+    public function destroy(Product $product)
     {
-    
+
         if ($product->image) {
             Storage::disk('public')->delete($product->image);
         }
-        
+
         $product->delete();
-        
+
         return redirect()->route('seller.products.index')
             ->with('success', 'Produk berhasil dihapus.');
     }

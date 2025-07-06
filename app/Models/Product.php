@@ -15,6 +15,8 @@ class Product extends Model
         'description',
         'price',
         'stock',
+        'file_path',
+        'external_url',
     ];
 
     public function seller(): BelongsTo
@@ -22,8 +24,13 @@ class Product extends Model
         return $this->belongsTo(Seller::class);
     }
 
-    public function orders(): HasMany
+    public function invoice(): HasMany
     {
-        return $this->hasMany(\App\Models\Order::class);
+        return $this->hasMany(Invoice
+        ::class);
+    }
+    public function invoiceItems()
+    {
+        return $this->hasMany(InvoiceItem::class);
     }
 }

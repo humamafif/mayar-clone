@@ -43,7 +43,7 @@ export interface NavGroup {
 }
 
 export type PageProps<T extends Record<string, unknown> = Record<string, unknown>> = T & {
-    auth?: {
+    auth: {
         user: User;
     };
     ziggy?: Config & { location: string };

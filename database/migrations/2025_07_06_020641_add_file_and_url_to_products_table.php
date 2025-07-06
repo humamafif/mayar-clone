@@ -11,9 +11,9 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('payment', function (Blueprint $table) {
-            $table->id();
-            $table->timestamps();
+        Schema::table('products', function (Blueprint $table) {
+            $table->string('file_path')->nullable()->after('image');
+            $table->string('external_url')->nullable()->after('file_path');
         });
     }
 
@@ -22,6 +22,8 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('payment');
+        Schema::table('products', function (Blueprint $table) {
+            $table->dropColumn(['file_path', 'external_url']);
+        });
     }
 };
