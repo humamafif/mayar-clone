@@ -43,7 +43,7 @@ class ProductController extends Controller
             'stock' => 'required|integer|min:0',
             'image' => 'required|image|mimes:jpg,jpeg,png|max:2048',
             'file' => 'nullable|file|max:10240',
-            'external_url' => 'nullable|url|max:255',
+            'product_url' => 'nullable|url|max:255',
         ]);
 
         $imagePath = $request->file('image')->store('products', 'public');
@@ -62,12 +62,12 @@ class ProductController extends Controller
             'price' => $request->price,
             'stock' => $request->stock,
             'file_path' => $filePath,
-            'external_url' => $request->external_url ?? null,
+            'product_url' => $request->product_url ?? null,
         ]);
 
 
         return redirect()->route('seller.products.index')
-            ->with('success', 'Produk berhasil ditambahkan.');
+            ->with('success', 'Product added successfully.');
     }
 
     /**
@@ -101,7 +101,7 @@ class ProductController extends Controller
             'stock' => 'required|integer|min:0',
             'image' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
             'file' => 'nullable|file|max:10240',
-            'external_url' => 'nullable|url|max:255',
+            'product_url' => 'nullable|url|max:255',
         ]);
 
         $imagePath = $product->image;
@@ -129,11 +129,11 @@ class ProductController extends Controller
             'price' => $request->price,
             'stock' => $request->stock,
             'file_path' => $request->hasFile('file') ? $filePath : $product->file_path,
-            'external_url' => $request->external_url ?? $product->external_url,
+            'product_url' => $request->product_url ?? $product->product_url,
         ]);
 
         return redirect()->route('seller.products.index')
-            ->with('success', 'Produk berhasil diperbarui.');
+            ->with('success', 'Product updated successfully.');
     }
 
     /**
@@ -149,6 +149,6 @@ class ProductController extends Controller
         $product->delete();
 
         return redirect()->route('seller.products.index')
-            ->with('success', 'Produk berhasil dihapus.');
+            ->with('success', 'Product deleted successfully.');
     }
 }

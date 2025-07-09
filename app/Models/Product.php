@@ -16,7 +16,7 @@ class Product extends Model
         'price',
         'stock',
         'file_path',
-        'external_url',
+        'product_url',
     ];
 
     public function seller(): BelongsTo

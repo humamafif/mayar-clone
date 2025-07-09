@@ -4,11 +4,11 @@ import { Input } from '@/components/ui/input';
 import AppLayout from '@/layouts/app-layout';
 import { parseRupiah, rupiahFormatter } from '@/lib/utils';
 import { BreadcrumbItem } from '@/types';
+import { Product } from '@/types/product';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Head, router } from '@inertiajs/react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
-import { Product } from './columns';
 
 const formSchema = z.object({
     image: z.any().optional(),
@@ -17,7 +17,7 @@ const formSchema = z.object({
     price: z.number().min(0, 'Price must be a positive number'),
     stock: z.number().int().min(0, 'Stock must be a non-negative integer'),
     file: z.any().optional(),
-    external_url: z.string().url('Must be a valid URL').optional().or(z.literal('')),
+    product_url: z.string().url('Must be a valid URL').optional().or(z.literal('')),
 });
 
 export default function EditProduct({ product }: { product: Product }) {
@@ -35,7 +35,7 @@ export default function EditProduct({ product }: { product: Product }) {
             description: product.description,
             price: product.price,
             stock: product.stock,
-            external_url: product.external_url || '',
+            product_url: product.product_url || '',
             file: null,
         },
     });
@@ -54,8 +54,8 @@ export default function EditProduct({ product }: { product: Product }) {
         if (values.file && values.file instanceof File) {
             formData.append('file', values.file);
         }
-        if (values.external_url) {
-            formData.append('external_url', values.external_url);
+        if (values.product_url) {
+            formData.append('product_url', values.product_url);
         }
 
         formData.append('_method', 'PUT'); // important for PUT request in Laravel
@@ -98,7 +98,7 @@ export default function EditProduct({ product }: { product: Product }) {
                                                 }}
                                             />
                                         </FormControl>
-                                        <p className="text-sm text-gray-500">Kosongkan jika tidak ingin mengubah gambar</p>
+                                        <p className="text-sm text-gray-500">Leave blank if you do not want to change the image</p>
                                         <FormMessage />
                                     </FormItem>
                                 )}
@@ -184,8 +184,8 @@ export default function EditProduct({ product }: { product: Product }) {
                                                 }}
                                             />
                                         </FormControl>
-                                        <FormDescription>Upload file yang akan bisa diunduh pembeli setelah pembelian berhasil</FormDescription>
-                                        <p className="text-sm text-gray-500">Kosongkan jika tidak ingin mengubah file</p>
+                                        <FormDescription>Upload a file that buyers can download after a successful purchase.</FormDescription>
+                                        <p className="text-sm text-gray-500">Leave blank if you do not want to change the file</p>
                                         <FormMessage />
                                     </FormItem>
                                 )}
@@ -193,14 +193,14 @@ export default function EditProduct({ product }: { product: Product }) {
 
                             <FormField
                                 control={form.control}
-                                name="external_url"
+                                name="product_url"
                                 render={({ field }) => (
                                     <FormItem>
-                                        <FormLabel>External URL (Optional)</FormLabel>
+                                        <FormLabel>Product URL (Optional)</FormLabel>
                                         <FormControl>
                                             <Input placeholder="https://example.com/resource" {...field} />
                                         </FormControl>
-                                        <FormDescription>Link yang akan diberikan kepada pembeli setelah pembelian berhasil</FormDescription>
+                                        <FormDescription>Provide a link that will be shared with buyers after a successful purchase.</FormDescription>
                                         <FormMessage />
                                     </FormItem>
                                 )}

@@ -7,18 +7,8 @@ import { Edit, Eye, LinkIcon, MoreHorizontal, Trash } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+import { Product } from '@/types/product';
 import { Link, router } from '@inertiajs/react';
-
-export type Product = {
-    id: number;
-    name: string;
-    description: string;
-    stock: number;
-    price: number;
-    image: string;
-    file_path?: string;
-    external_url?: string;
-};
 
 export const columns: ColumnDef<Product>[] = [
     {
@@ -93,10 +83,10 @@ export const columns: ColumnDef<Product>[] = [
         },
     },
     {
-        accessorKey: 'external_url',
-        header: 'External URL',
+        accessorKey: 'product_url',
+        header: 'Product URL',
         cell: ({ row }) => {
-            const url = row.original.external_url;
+            const url = row.original.product_url;
 
             if (!url) {
                 return (

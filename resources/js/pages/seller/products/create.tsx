@@ -31,7 +31,7 @@ const formSchema = z.object({
     price: z.number().min(0, 'Price must be a positive number'),
     stock: z.number().int().min(0, 'Stock must be a non-negative integer'),
     file: z.any().optional(),
-    external_url: z.string().url('Must be a valid URL').optional().or(z.literal('')),
+    product_url: z.string().url('Must be a valid URL').optional().or(z.literal('')),
 });
 
 export default function CreateProduct() {
@@ -44,7 +44,7 @@ export default function CreateProduct() {
             price: 0,
             stock: 0,
             file: null,
-            external_url: '',
+            product_url: '',
         },
     });
 
@@ -57,7 +57,7 @@ export default function CreateProduct() {
         formData.append('price', values.price.toString());
         formData.append('stock', values.stock.toString());
         if (values.file) formData.append('file', values.file);
-        if (values.external_url) formData.append('external_url', values.external_url);
+        if (values.product_url) formData.append('product_url', values.product_url);
         router.post(route('seller.products.store'), formData);
     }
 
@@ -91,6 +91,7 @@ export default function CreateProduct() {
                                     </FormItem>
                                 )}
                             />
+
                             <FormField
                                 control={form.control}
                                 name="name"
@@ -98,7 +99,7 @@ export default function CreateProduct() {
                                     <FormItem>
                                         <FormLabel>Product Name</FormLabel>
                                         <FormControl>
-                                            <Input placeholder="Input your product name" {...field} />
+                                            <Input placeholder="Enter the product name" {...field} />
                                         </FormControl>
                                         <FormMessage />
                                     </FormItem>
@@ -112,12 +113,13 @@ export default function CreateProduct() {
                                     <FormItem>
                                         <FormLabel>Product Description</FormLabel>
                                         <FormControl>
-                                            <Input placeholder="Input your product description" {...field} />
+                                            <Input placeholder="Enter a brief description" {...field} />
                                         </FormControl>
                                         <FormMessage />
                                     </FormItem>
                                 )}
                             />
+
                             <FormField
                                 control={form.control}
                                 name="stock"
@@ -126,7 +128,7 @@ export default function CreateProduct() {
                                         <FormLabel>Product Stock</FormLabel>
                                         <FormControl>
                                             <Input
-                                                placeholder="Input your product stock"
+                                                placeholder="Enter available stock"
                                                 type="number"
                                                 {...field}
                                                 value={field.value}
@@ -137,6 +139,7 @@ export default function CreateProduct() {
                                     </FormItem>
                                 )}
                             />
+
                             <FormField
                                 control={form.control}
                                 name="price"
@@ -146,8 +149,8 @@ export default function CreateProduct() {
                                         <FormControl>
                                             <Input
                                                 type="text"
+                                                placeholder="Enter the price"
                                                 {...field}
-                                                placeholder="Input your product price"
                                                 value={rupiahFormatter.format(field.value || 0)}
                                                 onChange={(e) => field.onChange(parseRupiah(e.target.value))}
                                                 autoComplete="off"
@@ -157,6 +160,7 @@ export default function CreateProduct() {
                                     </FormItem>
                                 )}
                             />
+
                             <FormField
                                 control={form.control}
                                 name="file"
@@ -175,7 +179,7 @@ export default function CreateProduct() {
                                                 }}
                                             />
                                         </FormControl>
-                                        <FormDescription>Upload file yang akan bisa diunduh pembeli setelah pembelian berhasil</FormDescription>
+                                        <FormDescription>Upload a file that buyers can download after successful purchase.</FormDescription>
                                         <FormMessage />
                                     </FormItem>
                                 )}
@@ -183,18 +187,19 @@ export default function CreateProduct() {
 
                             <FormField
                                 control={form.control}
-                                name="external_url"
+                                name="product_url"
                                 render={({ field }) => (
                                     <FormItem>
-                                        <FormLabel>External URL (Optional)</FormLabel>
+                                        <FormLabel>Product URL (Optional)</FormLabel>
                                         <FormControl>
                                             <Input placeholder="https://example.com/resource" {...field} />
                                         </FormControl>
-                                        <FormDescription>Link yang akan diberikan kepada pembeli setelah pembelian berhasil</FormDescription>
+                                        <FormDescription>Provide a link that will be shared with buyers after successful purchase.</FormDescription>
                                         <FormMessage />
                                     </FormItem>
                                 )}
                             />
+
                             <Button type="submit" disabled={form.formState.isSubmitting}>
                                 {form.formState.isSubmitting ? 'Submitting...' : 'Submit'}
                             </Button>
