@@ -1,30 +1,19 @@
 import { Icon } from '@/components/icon';
 import { Button } from '@/components/ui/button';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { useCart } from '@/hooks/cart/use-cart';
+import { useCheckout } from '@/hooks/cart/use-checkout';
 import { useForm } from '@inertiajs/react';
-import axios from 'axios';
 import { ShoppingCart, Trash } from 'lucide-react';
-import { useEffect, useState } from 'react';
-import { toast } from 'sonner';
 
 interface ShoppingCartPopoverProps {
     userId: number;
 }
 
 export function ShoppingCartPopover({ userId }: ShoppingCartPopoverProps) {
-    const [cart, setCart] = useState<CartItem[]>([]);
     const { post } = useForm();
-
-    useEffect(() => {
-        if (userId) {
-            const fetchCart = () => {
-                axios.get('/cart/list').then((res) => setCart(res.data));
-            };
-            fetchCart();
-            window.addEventListener('cart-updated', fetchCart);
-            return () => window.removeEventListener('cart-updated', fetchCart);
-        }
-    }, [userId]);
+    const { checkout, isLoading } = useCheckout();
+    const { cart, setCart } = useCart(userId);
 
     return (
         <Popover>
@@ -83,22 +72,8 @@ export function ShoppingCartPopover({ userId }: ShoppingCartPopoverProps) {
                                 {cart.reduce((sum, item) => sum + item.quantity * item.product.price, 0).toLocaleString('id-ID')}
                             </span>
                         </div>
-                        <Button
-                            className="mt-4 w-full cursor-pointer"
-                            size="sm"
-                            onClick={() => {
-                                axios.post(route('invoices.store')).then((res) => {
-                                    if (res.data.url) {
-                                        toast.success('Checkout successful! Redirecting to payment page...');
-                                        window.dispatchEvent(new Event('cart-updated'));
-                                        setTimeout(() => {
-                                            window.location.href = res.data.url;
-                                        }, 4000);
-                                    }
-                                });
-                            }}
-                        >
-                            Proceed to Checkout
+                        <Button className="mt-4 w-full cursor-pointer" size="sm" onClick={checkout} disabled={isLoading}>
+                            {isLoading ? 'Processing...' : 'Proceed to Checkout'}
                         </Button>
                     </>
                 )}

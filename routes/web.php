@@ -14,12 +14,7 @@ use Inertia\Inertia;
 // ======================
 // HALAMAN PUBLIK
 // ======================
-Route::get('/', function () {
-    $products = Product::with('seller')->latest()->take(8)->get();
-    return Inertia::render('welcome', [
-        'products' => $products
-    ]);
-})->name('home');
+Route::get('/', [HomeController::class, 'index'])->name('home');
 
 Route::get('/products', [HomeController::class, 'products'])->name('products');
 Route::get('/products/{product}', [HomeController::class, 'productDetail'])->name('products.detail');

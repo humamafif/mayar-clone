@@ -1,34 +1,29 @@
 import { ProductCard } from '@/components/product/product-card';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
+import { useAddToCart } from '@/hooks/cart/use-add-to-cart';
 import AppLayout from '@/layouts/app-layout';
 import { formatRupiah } from '@/lib/utils';
 import { SharedData } from '@/types';
 import { Product } from '@/types/product';
 import { Head, router, usePage } from '@inertiajs/react';
-import axios from 'axios';
-import { Minus, Plus, ShoppingBag, Store } from 'lucide-react';
+import { AlertCircle, Minus, Plus, ShoppingCart, Store, TrendingUp } from 'lucide-react';
 import { useState } from 'react';
 
-interface ProductDetailProps {
-    product: Product & {
-        seller: SellerInfo;
-    };
-    relatedProducts: Product[];
-}
-
-export default function ProductDetail({ product, relatedProducts }: ProductDetailProps) {
+export default function ProductDetail({ product, relatedProducts }: { relatedProducts: Product[]; product: Product }) {
     const [quantity, setQuantity] = useState(1);
-    const [processing, setProcessing] = useState(false);
     const { auth } = usePage<SharedData>().props;
     const isLoggedIn = !!auth?.user;
-
-    const isButtonDisabled = product.stock === 0 || !isLoggedIn || processing;
+    const { addToCart, processing } = useAddToCart();
+    const isOwnProduct = isLoggedIn && auth.user.id === product.seller.user_id;
+    const isButtonDisabled = product.stock === 0 || !isLoggedIn || processing || isOwnProduct;
 
     const getButtonText = () => {
         if (processing) return 'Processing...';
         if (product.stock === 0) return 'Out of Stock';
-        return 'Buy Now & Pay';
+        if (isOwnProduct) return 'Your Own Product';
+        return 'Add to Cart';
     };
 
     const increaseQuantity = () => {
@@ -43,33 +38,12 @@ export default function ProductDetail({ product, relatedProducts }: ProductDetai
         }
     };
 
-    const handlePurchase = async () => {
+    const handleAddToCart = () => {
         if (!isLoggedIn) {
             router.visit('/login');
             return;
         }
-
-        const data = {
-            product_id: product.id,
-            quantity: quantity,
-        };
-
-        try {
-            setProcessing(true);
-            const response = await axios.post('/invoices', data);
-
-            const url = response.data?.invoice_url;
-            if (url) {
-                window.location.href = url;
-            } else {
-                alert('Failed to retrieve invoice URL.');
-            }
-        } catch (error: any) {
-            console.error(error);
-            alert('An error occurred while processing your order.');
-        } finally {
-            setProcessing(false);
-        }
+        addToCart(product.id, quantity);
     };
 
     return (
@@ -89,6 +63,7 @@ export default function ProductDetail({ product, relatedProducts }: ProductDetai
                         />
                     </div>
 
+                    {/* Product details section */}
                     <div className="flex flex-col">
                         <h1 className="text-3xl font-bold">{product.name}</h1>
 
@@ -97,8 +72,14 @@ export default function ProductDetail({ product, relatedProducts }: ProductDetai
                             <span className="text-gray-600">{product.seller.shop_name}</span>
                         </div>
 
-                        <div className="mt-6">
-                            <h2 className="text-2xl font-bold text-amber-500">{formatRupiah(product.price)}</h2>
+                        <div className="mt-6 flex justify-between">
+                            <div className="flex-col gap-2">
+                                <h2 className="text-2xl font-bold text-amber-500">{formatRupiah(product.price)}</h2>
+                                <p className="flex items-center gap-1 text-sm text-emerald-600">
+                                    <TrendingUp className="h-4 w-4" />
+                                    <span>{product.total_sold && product.total_sold > 0 ? `${product.total_sold} sold` : 'New product'}</span>
+                                </p>
+                            </div>
                             <div className="mt-2">
                                 <span
                                     className={`inline-flex items-center rounded-full px-3 py-1 text-sm font-medium ${
@@ -135,8 +116,16 @@ export default function ProductDetail({ product, relatedProducts }: ProductDetai
                         )}
 
                         <div className="mt-8">
-                            <Button className="w-full" disabled={isButtonDisabled} size="lg" onClick={handlePurchase}>
-                                <ShoppingBag className="mr-2 h-5 w-5" />
+                            {isOwnProduct && (
+                                <Alert className="mb-4 bg-amber-50">
+                                    <AlertCircle className="h-4 w-4 text-amber-600" />
+                                    <AlertDescription className="text-amber-800">
+                                        This is your own product. You cannot purchase your own products.
+                                    </AlertDescription>
+                                </Alert>
+                            )}
+                            <Button className="w-full" disabled={isButtonDisabled} size="lg" onClick={handleAddToCart}>
+                                <ShoppingCart className="mr-2 h-5 w-5" />
                                 {getButtonText()}
                             </Button>
 
@@ -153,6 +142,7 @@ export default function ProductDetail({ product, relatedProducts }: ProductDetai
                     </div>
                 </div>
 
+                {/* Related products section */}
                 {relatedProducts.length > 0 && (
                     <div className="mt-16">
                         <h2 className="mb-6 text-2xl font-bold">Related Products</h2>

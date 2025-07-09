@@ -7,7 +7,6 @@ export interface Product {
     image: string;
     file_path?: string;
     product_url?: string;
-    seller: {
-        shop_name: string;
-    };
+    total_sold?: number;
+    seller: SellerInfo;
 }

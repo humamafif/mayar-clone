@@ -1,36 +1,20 @@
+import { useAddToCart } from '@/hooks/cart/use-add-to-cart';
 import { formatRupiah } from '@/lib/utils';
+import { SharedData } from '@/types';
 import type { Product } from '@/types/product';
-import { Link, router } from '@inertiajs/react';
-import { ShoppingBag, ShoppingCart } from 'lucide-react';
-import { useState } from 'react';
-import { toast } from 'sonner';
+import { Link, usePage } from '@inertiajs/react';
+import { ShoppingBag, ShoppingCart, TrendingUp } from 'lucide-react';
 
-interface ProductCardProps {
-    product: Product;
-}
-
-export function ProductCard({ product }: ProductCardProps) {
-    const [processing, setProcessing] = useState(false);
-
+export function ProductCard({ product }: { product: Product }) {
+    const { addToCart, processing } = useAddToCart();
+    const { auth } = usePage<SharedData>().props;
+    const isOwnProduct = auth.user && product.seller.user_id === auth.user.id;
     const handleAddToCart = (e: React.MouseEvent) => {
         e.preventDefault();
-
-        router.post(
-            route('cart.store'),
-            { product_id: product.id, quantity: 1 },
-            {
-                preserveScroll: true,
-                onStart: () => setProcessing(true),
-                onSuccess: () => {
-                    window.dispatchEvent(new Event('cart-updated'));
-                    toast.success('Product added to cart');
-                },
-                onError: () => {
-                    toast.error('Failed to add to cart');
-                },
-                onFinish: () => setProcessing(false),
-            },
-        );
+        if (isOwnProduct) {
+            return;
+        }
+        addToCart(product.id, 1);
     };
 
     return (
@@ -57,19 +41,27 @@ export function ProductCard({ product }: ProductCardProps) {
                     <ShoppingBag className="h-4 w-4 text-muted-foreground" />
                     {product.seller?.shop_name ?? 'Unknown Store'}
                 </p>
+                <p className="flex items-center gap-1 text-sm text-emerald-600">
+                    <TrendingUp className="h-4 w-4" />
+                    <span>{product.total_sold && product.total_sold > 0 ? `${product.total_sold} sold` : 'New product'}</span>
+                </p>
                 <div className="mt-4 flex items-center justify-between">
                     <span className="font-bold text-amber-500">{formatRupiah(product.price)}</span>
                     <button
                         onClick={handleAddToCart}
                         className="rounded-lg bg-indigo-600 px-3 py-2 text-sm font-semibold text-white hover:bg-indigo-700 disabled:cursor-not-allowed disabled:opacity-50"
-                        disabled={product.stock === 0 || processing}
+                        disabled={product.stock === 0 || processing || isOwnProduct}
                     >
                         {processing ? (
                             '...'
                         ) : product.stock > 0 ? (
-                            <p className="flex items-center gap-1 text-xl">
-                                + <ShoppingCart />
-                            </p>
+                            isOwnProduct ? (
+                                'Your Product'
+                            ) : (
+                                <p className="flex items-center gap-1 text-xl">
+                                    + <ShoppingCart />
+                                </p>
+                            )
                         ) : (
                             'Out of Stock'
                         )}

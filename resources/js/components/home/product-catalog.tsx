@@ -1,7 +1,6 @@
 import { ProductCard } from '@/components/product/product-card';
 import { Product } from '@/types/product';
 import { Link } from '@inertiajs/react';
-import { ShoppingBagIcon } from 'lucide-react';
 
 interface ProductCatalogProps {
     products: Product[];
@@ -9,29 +8,42 @@ interface ProductCatalogProps {
     description: string;
     viewAllLink: string;
     viewAllText: string;
+    variant?: 'default' | 'featured';
 }
 
-export function ProductCatalog({ products = [], title = '', description = '', viewAllLink = '', viewAllText = '' }: ProductCatalogProps) {
+export function ProductCatalog({
+    products = [],
+    title = '',
+    description = '',
+    viewAllLink = '',
+    viewAllText = '',
+    variant = 'default',
+}: ProductCatalogProps) {
+    const isFeatured = variant === 'featured';
+
     return (
         <div className="py-16" id="products">
             <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
                 <div className="mb-12 text-center">
-                    <h2 className="mb-4 text-3xl font-bold text-gray-900">{title}</h2>
+                    <h2 className={`mb-4 text-3xl font-bold ${isFeatured ? 'text-blue-700' : 'text-gray-900'}`}>{title}</h2>
                     <p className="mx-auto max-w-2xl text-lg text-gray-600">{description}</p>
                 </div>
 
-                <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-3">
+                <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-4">
                     {products.length > 0 ? (
-                        products.map((product) => <ProductCard key={product.id} product={product} />)
+                        products.map((product) => (
+                            <div key={product.id}>
+                                <ProductCard product={product} />
+                            </div>
+                        ))
                     ) : (
-                        <div className="col-span-full flex flex-col items-center justify-center py-12 text-center">
-                            <ShoppingBagIcon className="mb-4 h-20 w-20 text-gray-500" />
-                            <p className="text-xl text-gray-500">No products available at the moment. Please check back later!</p>
+                        <div className="col-span-full py-12 text-center">
+                            <p className="text-xl text-gray-500">No products available yet. Please check back later!</p>
                         </div>
                     )}
                 </div>
 
-                {products.length > 0 && (
+                {products.length > 0 && !isFeatured && (
                     <div className="mt-12 text-center">
                         <Link
                             href={viewAllLink}
