@@ -1,47 +1,27 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
 import AppLayout from '@/layouts/app-layout';
-import { SharedData } from '@/types';
-import { Head, usePage } from '@inertiajs/react';
-
-interface SellerInfo {
-    id: number;
-    user_id: number;
-    shop_name: string;
-    shop_description: string | null;
-    phone_number: string;
-    address: string;
-    id_card_number: string;
-    bank_name: string;
-    bank_account: string;
-    account_number: string;
-    created_at: string;
-    updated_at: string;
-}
+import { Head } from '@inertiajs/react';
 
 interface StoreInfoProps {
     seller: SellerInfo;
 }
 
 export default function StoreInfo({ seller }: StoreInfoProps) {
-    const { auth } = usePage<SharedData>().props;
-
     const breadcrumbs = [
-        { title: 'Dashboard', href: '/seller/dashboard' },
-        { title: 'Informasi Toko', href: '/seller/store-info' },
+        { title: 'Seller Dashboard', href: '/seller/dashboard' },
+        { title: 'Store Settings', href: '/seller/store-info' },
     ];
 
-    // Format tanggal untuk tampilan yang lebih baik
     const formatDate = (dateString: string) => {
         const date = new Date(dateString);
-        return new Intl.DateTimeFormat('id-ID', {
+        return new Intl.DateTimeFormat('en-US', {
             day: 'numeric',
             month: 'long',
             year: 'numeric',
         }).format(date);
     };
 
-    // Menampilkan sebagian nomor rekening untuk keamanan
     const maskedAccountNumber = (accountNumber: string) => {
         if (accountNumber.length <= 4) return accountNumber;
         return '*'.repeat(accountNumber.length - 4) + accountNumber.slice(-4);
@@ -49,75 +29,74 @@ export default function StoreInfo({ seller }: StoreInfoProps) {
 
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
-            <Head title="Informasi Toko" />
+            <Head title="Store Information" />
             <div className="flex h-full flex-1 flex-col gap-4 overflow-x-auto rounded-xl p-4">
                 <div className="mb-4 flex items-center justify-between">
-                    <h1 className="text-2xl font-semibold">Informasi Toko</h1>
-                    {/* <Button variant="outline">Edit Informasi</Button> */}
+                    <h1 className="text-2xl font-semibold">Store Settings</h1>
                 </div>
 
                 <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-                    {/* Informasi Toko */}
+                    {/* Store Details */}
                     <Card>
                         <CardHeader>
-                            <CardTitle>Detail Toko</CardTitle>
-                            <CardDescription>Informasi dasar tentang toko Anda</CardDescription>
+                            <CardTitle>Details</CardTitle>
+                            <CardDescription>Basic information about your store</CardDescription>
                         </CardHeader>
                         <CardContent className="space-y-4">
                             <div>
-                                <Label className="text-sm font-medium text-gray-500 dark:text-gray-400">Nama Toko</Label>
+                                <Label className="text-sm font-medium text-gray-500 dark:text-gray-400">Store Name</Label>
                                 <p className="mt-1 text-lg font-medium">{seller.shop_name}</p>
                             </div>
                             <div>
-                                <Label className="text-sm font-medium text-gray-500 dark:text-gray-400">Deskripsi</Label>
-                                <p className="mt-1">{seller.shop_description || 'Tidak ada deskripsi'}</p>
+                                <Label className="text-sm font-medium text-gray-500 dark:text-gray-400">Description</Label>
+                                <p className="mt-1">{seller.shop_description || 'No description available'}</p>
                             </div>
                             <div>
-                                <Label className="text-sm font-medium text-gray-500 dark:text-gray-400">Terdaftar Sejak</Label>
+                                <Label className="text-sm font-medium text-gray-500 dark:text-gray-400">Registered Since</Label>
                                 <p className="mt-1">{formatDate(seller.created_at)}</p>
                             </div>
                         </CardContent>
                     </Card>
 
-                    {/* Informasi Kontak */}
+                    {/* Contact Info */}
                     <Card>
                         <CardHeader>
-                            <CardTitle>Informasi Kontak</CardTitle>
-                            <CardDescription>Detail kontak dan alamat</CardDescription>
+                            <CardTitle>Contact Information</CardTitle>
+                            <CardDescription>Contact details and store address</CardDescription>
                         </CardHeader>
                         <CardContent className="space-y-4">
                             <div>
-                                <Label className="text-sm font-medium text-gray-500 dark:text-gray-400">Nomor Telepon</Label>
+                                <Label className="text-sm font-medium text-gray-500 dark:text-gray-400">Phone Number</Label>
                                 <p className="mt-1">{seller.phone_number}</p>
                             </div>
                             <div>
-                                <Label className="text-sm font-medium text-gray-500 dark:text-gray-400">Alamat</Label>
+                                <Label className="text-sm font-medium text-gray-500 dark:text-gray-400">Address</Label>
                                 <p className="mt-1">{seller.address}</p>
                             </div>
                             <div>
-                                <Label className="text-sm font-medium text-gray-500 dark:text-gray-400">Nomor KTP</Label>
+                                <Label className="text-sm font-medium text-gray-500 dark:text-gray-400">ID Card Number</Label>
                                 <p className="mt-1">{'*'.repeat(seller.id_card_number.length - 4) + seller.id_card_number.slice(-4)}</p>
                             </div>
                         </CardContent>
                     </Card>
 
-                    {/* Informasi Rekening Bank */}
+                    {/* Bank Information */}
                     <Card className="md:col-span-2">
                         <CardHeader>
-                            <CardTitle>Informasi Rekening</CardTitle>
-                            <CardDescription>Detail rekening bank untuk penerimaan pembayaran</CardDescription>
+                            <CardTitle>Bank Account</CardTitle>
+                            <CardDescription>Bank account details for receiving payments</CardDescription>
                         </CardHeader>
                         <CardContent className="grid grid-cols-1 gap-4 md:grid-cols-3">
                             <div>
-                                <Label className="text-sm font-medium text-gray-500 dark:text-gray-400">Nama Bank</Label>
+                                <Label className="text-sm font-medium text-gray-500 dark:text-gray-400">Bank Name</Label>
                                 <p className="mt-1">{seller.bank_name}</p>
                             </div>
                             <div>
-                                <Label className="text-sm font-medium text-gray-500 dark:text-gray-400">Nomor Rekening</Label>
+                                <Label className="text-sm font-medium text-gray-500 dark:text-gray-400">Account Number</Label>
                                 <p className="mt-1">{maskedAccountNumber(seller.account_number)}</p>
                             </div>
                             <div>
-                                <Label className="text-sm font-medium text-gray-500 dark:text-gray-400">Nama Pemilik</Label>
+                                <Label className="text-sm font-medium text-gray-500 dark:text-gray-400">Account Holder</Label>
                                 <p className="mt-1">{seller.bank_account}</p>
                             </div>
                         </CardContent>

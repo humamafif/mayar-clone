@@ -10,14 +10,12 @@ import { UserMenuContent } from '@/components/user-menu-content';
 import { useInitials } from '@/hooks/use-initials';
 import { cn } from '@/lib/utils';
 import { type BreadcrumbItem, type NavItem, type SharedData } from '@/types';
-import { Link, useForm, usePage } from '@inertiajs/react';
-import axios from 'axios';
-import { ClipboardList, LayoutGrid, Menu, ShoppingBag, ShoppingCart, Trash } from 'lucide-react';
-import { useEffect, useState } from 'react';
-import { toast } from 'sonner';
+import { Link, usePage } from '@inertiajs/react';
+import { ClipboardList, LayoutGrid, Menu, ShoppingBag } from 'lucide-react';
 import AppLogo from './app-logo';
 import AppLogoIcon from './app-logo-icon';
-import { Popover, PopoverContent, PopoverTrigger } from './ui/popover';
+import AuthButton from './auth/auth-button';
+import { ShoppingCartPopover } from './cart/shopping-cart';
 
 const sellerNavItems: NavItem[] = [
     {
@@ -34,8 +32,8 @@ const publicNavItems: NavItem[] = [
         icon: ShoppingBag,
     },
     {
-        title: 'Orders',
-        href: '/order',
+        title: 'Invoices',
+        href: '/invoices',
         icon: ClipboardList,
     },
 ];
@@ -51,44 +49,7 @@ interface AppHeaderProps {
 export function AppHeader({ breadcrumbs = [] }: AppHeaderProps) {
     const page = usePage<SharedData>();
     const { auth } = page.props;
-    const { post } = useForm();
     const getInitials = useInitials();
-
-    interface CartItem {
-        id: number;
-        quantity: number;
-        price: number;
-        product: {
-            id: number;
-            title: string;
-            image: string;
-            price: number;
-        };
-    }
-
-    const [cart, setCart] = useState<CartItem[]>([]);
-
-    useEffect(() => {
-        const fetchCart = () => {
-            try {
-                fetch(route('cart.list'))
-                    .then((res) => {
-                        if (!res.ok) return Promise.resolve([]);
-                        return res.json();
-                    })
-                    .then((data) => setCart(data))
-                    .catch(() => setCart([]));
-            } catch (error) {
-                console.error('Error fetching cart:', error);
-                setCart([]);
-            }
-        };
-
-        fetchCart();
-
-        window.addEventListener('cart-updated', fetchCart);
-        return () => window.removeEventListener('cart-updated', fetchCart);
-    }, []);
     console.log('usePage props:', usePage().props);
     return (
         <>
@@ -116,7 +77,7 @@ export function AppHeader({ breadcrumbs = [] }: AppHeaderProps) {
                                                     <span>{item.title}</span>
                                                 </Link>
                                             ))}
-                                            {auth?.user && // ✅ Gunakan optional chaining
+                                            {auth?.user &&
                                                 auth.user.role === 'seller' &&
                                                 sellerNavItems.map((item) => (
                                                     <Link key={item.title} href={item.href} className="flex items-center space-x-2 font-medium">
@@ -125,7 +86,6 @@ export function AppHeader({ breadcrumbs = [] }: AppHeaderProps) {
                                                     </Link>
                                                 ))}
                                         </div>
-
                                         <div className="flex flex-col space-y-4">
                                             {rightNavItems.map((item) => (
                                                 <a
@@ -143,18 +103,7 @@ export function AppHeader({ breadcrumbs = [] }: AppHeaderProps) {
 
                                         {!auth?.user && (
                                             <div className="mt-4 flex flex-col space-y-2">
-                                                <Link
-                                                    href={route('login')}
-                                                    className="inline-flex items-center rounded-md border border-gray-300 bg-white px-4 py-2 text-xs font-semibold tracking-widest text-gray-700 uppercase shadow-sm transition duration-150 ease-in-out hover:bg-gray-50 focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 focus:outline-none disabled:opacity-25 dark:border-gray-500 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700 dark:focus:ring-offset-gray-800"
-                                                >
-                                                    Login
-                                                </Link>
-                                                <Link
-                                                    href={route('register')}
-                                                    className="inline-flex items-center rounded-md border border-transparent bg-gray-800 px-4 py-2 text-xs font-semibold tracking-widest text-white uppercase transition duration-150 ease-in-out hover:bg-gray-700 focus:bg-gray-700 focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 focus:outline-none active:bg-gray-900 dark:bg-gray-200 dark:text-gray-800 dark:hover:bg-white dark:focus:bg-white dark:focus:ring-offset-gray-800 dark:active:bg-gray-300"
-                                                >
-                                                    Register
-                                                </Link>
+                                                <AuthButton />
                                             </div>
                                         )}
                                     </div>
@@ -215,88 +164,8 @@ export function AppHeader({ breadcrumbs = [] }: AppHeaderProps) {
 
                     <div className="ml-auto flex items-center space-x-2">
                         <div className="relative flex items-center space-x-1">
+                            {auth?.user && <ShoppingCartPopover userId={auth.user.id} />}
                             <div className="hidden lg:flex">
-                                <Popover>
-                                    <PopoverTrigger asChild>
-                                        <Button
-                                            variant="ghost"
-                                            className="group ml-1 inline-flex h-9 w-9 items-center justify-center rounded-md bg-transparent p-0 text-sm font-medium text-accent-foreground ring-offset-background transition-colors hover:bg-accent hover:text-accent-foreground focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:outline-none disabled:pointer-events-none disabled:opacity-50"
-                                        >
-                                            <span className="sr-only">Cart</span>
-                                            <Icon iconNode={ShoppingCart} className="size-5 opacity-80 group-hover:opacity-100" />
-                                        </Button>
-                                    </PopoverTrigger>
-                                    <PopoverContent className="w-80">
-                                        <div className="mb-2 font-semibold">Keranjang</div>
-                                        {cart.length === 0 ? (
-                                            <div className="text-sm text-muted-foreground">Keranjang belanja kamu masih kosong.</div>
-                                        ) : (
-                                            <>
-                                                <div className="divide-y">
-                                                    {cart.map((item) => (
-                                                        <div key={item.id} className="flex items-center gap-3 py-2">
-                                                            <img
-                                                                src={`/storage/${item.product.image}`}
-                                                                alt={item.product.title}
-                                                                className="h-12 w-12 rounded border object-cover"
-                                                            />
-                                                            <div className="flex-1">
-                                                                <div className="font-medium">{item.product.title}</div>
-                                                                <div className="text-xs text-muted-foreground">
-                                                                    {item.quantity} x Rp{item.product.price.toLocaleString('id-ID')}
-                                                                </div>
-                                                            </div>
-                                                            <div className="flex flex-col items-end gap-1">
-                                                                <div className="text-sm font-semibold">
-                                                                    Rp{(item.quantity * item.product.price).toLocaleString('id-ID')}
-                                                                </div>
-                                                                <button
-                                                                    type="button"
-                                                                    className="flex items-center text-xs text-red-500 hover:underline"
-                                                                    title="Hapus"
-                                                                    onClick={() => {
-                                                                        post(route('cart.cancel', item.id), {
-                                                                            onSuccess: () => window.dispatchEvent(new Event('cart-updated')),
-                                                                            preserveScroll: true,
-                                                                        });
-                                                                    }}
-                                                                >
-                                                                    <Trash className="mr-1 h-3 w-3" /> Hapus
-                                                                </button>
-                                                            </div>
-                                                        </div>
-                                                    ))}
-                                                </div>
-                                                <div className="mt-3 flex items-center justify-between font-semibold">
-                                                    <span>Total</span>
-                                                    <span>
-                                                        Rp
-                                                        {cart
-                                                            .reduce((sum, item) => sum + item.quantity * item.product.price, 0)
-                                                            .toLocaleString('id-ID')}
-                                                    </span>
-                                                </div>
-                                                <Button
-                                                    className="mt-4 w-full"
-                                                    size="sm"
-                                                    onClick={() => {
-                                                        axios.post(route('order.store')).then((res) => {
-                                                            if (res.data.url) {
-                                                                toast.success('Checkout berhasil, mengalihkan ke halaman pembayaran...');
-                                                                window.dispatchEvent(new Event('cart-updated'));
-                                                                setTimeout(() => {
-                                                                    window.location.href = res.data.url;
-                                                                }, 4000);
-                                                            }
-                                                        });
-                                                    }}
-                                                >
-                                                    Checkout
-                                                </Button>
-                                            </>
-                                        )}
-                                    </PopoverContent>
-                                </Popover>
                                 {rightNavItems.map((item) => (
                                     <TooltipProvider key={item.title} delayDuration={0}>
                                         <Tooltip>
@@ -338,18 +207,7 @@ export function AppHeader({ breadcrumbs = [] }: AppHeaderProps) {
                             </DropdownMenu>
                         ) : (
                             <div className="hidden items-center space-x-2 lg:flex">
-                                <Link
-                                    href={route('login')}
-                                    className="inline-flex items-center rounded-md border border-gray-300 bg-white px-4 py-2 text-xs font-semibold tracking-widest text-gray-700 uppercase shadow-sm transition duration-150 ease-in-out hover:bg-gray-50 focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 focus:outline-none disabled:opacity-25 dark:border-gray-500 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700 dark:focus:ring-offset-gray-800"
-                                >
-                                    Login
-                                </Link>
-                                <Link
-                                    href={route('register')}
-                                    className="inline-flex items-center rounded-md border border-transparent bg-gray-800 px-4 py-2 text-xs font-semibold tracking-widest text-white uppercase transition duration-150 ease-in-out hover:bg-gray-700 focus:bg-gray-700 focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 focus:outline-none active:bg-gray-900 dark:bg-gray-200 dark:text-gray-800 dark:hover:bg-white dark:focus:bg-white dark:focus:ring-offset-gray-800 dark:active:bg-gray-300"
-                                >
-                                    Register
-                                </Link>
+                                <AuthButton />
                             </div>
                         )}
                     </div>

@@ -12,7 +12,7 @@ class SellerController extends Controller
     {
         $seller = $request->user()->seller;
 
-        return Inertia::render('seller/store-info', [
+        return Inertia::render('seller/store/store-settings', [
             'seller' => $seller
         ]);
     }
@@ -51,7 +51,7 @@ class SellerController extends Controller
             'account_number' => $validated['account_number'],
         ]);
 
-        return redirect()->route('seller.dashboard')->with('success', 'Selamat! Anda sekarang telah menjadi seller.');
+        return redirect()->route('seller.dashboard')->with('success', 'Congratulations! You are now a seller.');
     }
 
     public function dashboard(Request $request)
@@ -82,7 +82,7 @@ class SellerController extends Controller
                 'products_count' => $productsCount,
                 'balance' => $balance,
             ],
-            'orders' => $invoices,
+            'invoices' => $invoices,
         ]);
     }
     public function invoices(Request $request)
@@ -106,8 +106,8 @@ class SellerController extends Controller
             });
         })->sortByDesc('created_at')->values();
 
-        return Inertia::render('seller/orders', [
-            'orders' => $invoices
+        return Inertia::render('seller/invoices/index', [
+            'invoices' => $invoices
         ]);
     }
 }

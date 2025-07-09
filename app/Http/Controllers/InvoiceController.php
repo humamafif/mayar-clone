@@ -27,7 +27,7 @@ class InvoiceController extends Controller
         $invoices = Invoice::with('items', 'items.product')
             ->where('user_id', Auth::id())
             ->orderByDesc('created_at')->get();
-        return Inertia::render('order/index', compact('invoices'));
+        return Inertia::render('invoices/index', compact('invoices'));
     }
 
     public function store(Request $request)
@@ -64,7 +64,6 @@ class InvoiceController extends Controller
             // Buat satu invoice untuk seluruh transaksi
             $invoice = Invoice::create([
                 'user_id' => $userId,
-                'external_id' => $invoice_code,
                 'invoice_code' => $invoice_code,
                 'amount' => $amount,
                 'status' => 'pending',
@@ -79,8 +78,8 @@ class InvoiceController extends Controller
                     'given_names' => Auth::user()->name,
                     'email' => Auth::user()->email,
                 ],
-                'success_redirect_url' => route('order.show', ['id' => $invoice->id]),
-                'failure_redirect_url' => route('order.show', ['id' => $invoice->id]),
+                'success_redirect_url' => route('invoices.show', ['id' => $invoice->id]),
+                'failure_redirect_url' => route('invoices.show', ['id' => $invoice->id]),
             ]);
 
             $xendit_api_instance = new InvoiceApi();
@@ -121,7 +120,7 @@ class InvoiceController extends Controller
     {
         $invoice = Invoice::with('items', 'items.product')->findOrFail($id);
 
-        return Inertia::render('order/show', compact('invoice'));
+        return Inertia::render('invoices/show', compact('invoice'));
     }
 
 
@@ -135,10 +134,10 @@ class InvoiceController extends Controller
             return response()->json(['message' => 'unauthorized'], 401);
         }
 
-        $invoice = Invoice::where('external_id', $request->external_id)->first();
+        $invoice = Invoice::where('invoice_code', $request->external_id)->first();
 
         if (!$invoice) {
-            Log::warning('Xendit Callback: invoice not found for external_id: ' . $request->external_id);
+            Log::warning('Xendit Callback: invoice not found for external_id: ' . $request->invoice_code);
             return response()->json(['message' => 'invoice not found'], 404);
         }
 
@@ -156,23 +155,14 @@ class InvoiceController extends Controller
             'payment_channel' => $request->payment_channel ?? null,
         ]);
 
-        // tambahkan saldo seller
         if ($invoice->status === 'paid') {
             foreach ($invoice->items as $item) {
                 $product = $item->product;
                 if ($product && $product->seller) {
                     $amount = $item->price * $item->quantity;
                     $product->seller->increment('balance', $amount);
-                    Log::info("Saldo seller #{$product->seller->id} bertambah Rp {$amount} dari invoice {$invoice->invoice_code}");
                 }
             }
-
-            // if ($seller) {
-            //     $seller->increment('balance', $invoice->amount);
-            //     Log::info("Saldo seller #{$seller->id} bertambah Rp {$invoice->amount} dari invoice {$invoice->invoice_code}");
-            // } else {
-            //     Log::warning("Tidak ditemukan seller untuk order #{$invoice->id}");
-            // }
         }
 
         return response()->json(['message' => 'Success'], 200);

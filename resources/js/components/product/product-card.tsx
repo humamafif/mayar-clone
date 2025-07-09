@@ -22,10 +22,11 @@ export function ProductCard({ product }: ProductCardProps) {
                 preserveScroll: true,
                 onStart: () => setProcessing(true),
                 onSuccess: () => {
-                    toast.success('Produk ditambahkan ke keranjang');
+                    window.dispatchEvent(new Event('cart-updated'));
+                    toast.success('Product added to cart');
                 },
                 onError: () => {
-                    toast.error('Gagal menambahkan ke keranjang');
+                    toast.error('Failed to add to cart');
                 },
                 onFinish: () => setProcessing(false),
             },
@@ -43,18 +44,18 @@ export function ProductCard({ product }: ProductCardProps) {
                     alt={product.name}
                     className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
                     onError={(e) => {
-                        e.currentTarget.src = 'https://placehold.co/600x400/indigo/white?text=Produk+Digital';
+                        e.currentTarget.src = 'https://placehold.co/600x400/indigo/white?text=Digital+Product';
                     }}
                 />
                 {product.stock === 0 && (
-                    <div className="absolute top-4 right-4 rounded-full bg-red-500 px-3 py-1 text-sm font-semibold text-white">Habis</div>
+                    <div className="absolute top-4 right-4 rounded-full bg-red-500 px-3 py-1 text-sm font-semibold text-white">Out of Stock</div>
                 )}
             </div>
             <div className="p-6">
                 <h3 className="text-xl font-bold text-gray-900">{product.name}</h3>
                 <p className="mt-1 flex gap-1 text-sm text-gray-500">
                     <ShoppingBag className="h-4 w-4 text-muted-foreground" />
-                    {product.seller?.shop_name ?? 'Toko Tidak Diketahui'}
+                    {product.seller?.shop_name ?? 'Unknown Store'}
                 </p>
                 <div className="mt-4 flex items-center justify-between">
                     <span className="font-bold text-amber-500">{formatRupiah(product.price)}</span>
@@ -70,7 +71,7 @@ export function ProductCard({ product }: ProductCardProps) {
                                 + <ShoppingCart />
                             </p>
                         ) : (
-                            'Stok Habis'
+                            'Out of Stock'
                         )}
                     </button>
                 </div>

@@ -13,17 +13,6 @@ export interface User {
     [key: string]: unknown;
 }
 
-export interface Product {
-    id: number;
-    name: string;
-    description: string;
-    price: number;
-    stock: number;
-    image: string;
-    seller: {
-        shop_name: string;
-    };
-}
 
 export interface BreadcrumbItem {
     title: string;

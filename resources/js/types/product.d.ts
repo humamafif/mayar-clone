@@ -2,9 +2,11 @@ export interface Product {
     id: number;
     name: string;
     description: string;
+    stock: number;
     price: number;
     image: string;
-    stock: number;
+    file_path?: string;
+    product_url?: string;
     seller: {
         shop_name: string;
     };

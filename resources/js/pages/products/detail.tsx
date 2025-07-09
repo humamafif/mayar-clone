@@ -1,33 +1,20 @@
-import { ProductCard } from '@/components/product-card';
+import { ProductCard } from '@/components/product/product-card';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import AppLayout from '@/layouts/app-layout';
 import { formatRupiah } from '@/lib/utils';
-import { PageProps, SharedData, type Product } from '@/types';
+import { SharedData } from '@/types';
+import { Product } from '@/types/product';
 import { Head, router, usePage } from '@inertiajs/react';
+import axios from 'axios';
 import { Minus, Plus, ShoppingBag, Store } from 'lucide-react';
 import { useState } from 'react';
-import axios from 'axios'; 
-
-
-interface SellerDetails {
-    user: {
-        name: string;
-    };
-    shop_name: string;
-}
 
 interface ProductDetailProps {
     product: Product & {
-        seller: SellerDetails;
+        seller: SellerInfo;
     };
     relatedProducts: Product[];
-}
-
-interface FlashMessage {
-    url?: string;
-    error?: string;
-    success?: string;
 }
 
 export default function ProductDetail({ product, relatedProducts }: ProductDetailProps) {
@@ -39,9 +26,9 @@ export default function ProductDetail({ product, relatedProducts }: ProductDetai
     const isButtonDisabled = product.stock === 0 || !isLoggedIn || processing;
 
     const getButtonText = () => {
-        if (processing) return 'Memproses...';
-        if (product.stock === 0) return 'Stok Habis';
-        return 'Beli Sekarang & Bayar';
+        if (processing) return 'Processing...';
+        if (product.stock === 0) return 'Out of Stock';
+        return 'Buy Now & Pay';
     };
 
     const increaseQuantity = () => {
@@ -61,30 +48,29 @@ export default function ProductDetail({ product, relatedProducts }: ProductDetai
             router.visit('/login');
             return;
         }
-    
+
         const data = {
             product_id: product.id,
             quantity: quantity,
         };
-    
+
         try {
             setProcessing(true);
-            const response = await axios.post('/order', data);
-    
+            const response = await axios.post('/invoices', data);
+
             const url = response.data?.invoice_url;
             if (url) {
                 window.location.href = url;
             } else {
-                alert('Gagal mendapatkan invoice URL');
+                alert('Failed to retrieve invoice URL.');
             }
         } catch (error: any) {
             console.error(error);
-            alert('Terjadi kesalahan saat memproses pesanan');
+            alert('An error occurred while processing your order.');
         } finally {
             setProcessing(false);
         }
     };
-    
 
     return (
         <AppLayout>
@@ -98,7 +84,7 @@ export default function ProductDetail({ product, relatedProducts }: ProductDetai
                             alt={product.name}
                             className="h-full w-full object-cover"
                             onError={(e) => {
-                                e.currentTarget.src = 'https://placehold.co/600x400/indigo/white?text=Produk+Digital';
+                                e.currentTarget.src = 'https://placehold.co/600x400/indigo/white?text=Digital+Product';
                             }}
                         />
                     </div>
@@ -119,7 +105,7 @@ export default function ProductDetail({ product, relatedProducts }: ProductDetai
                                         product.stock > 0 ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
                                     }`}
                                 >
-                                    {product.stock > 0 ? `Stok: ${product.stock}` : 'Stok Habis'}
+                                    {product.stock > 0 ? `Stock: ${product.stock}` : 'Out of Stock'}
                                 </span>
                             </div>
                         </div>
@@ -127,7 +113,7 @@ export default function ProductDetail({ product, relatedProducts }: ProductDetai
                         <Separator className="my-6" />
 
                         <div>
-                            <h3 className="text-lg font-semibold">Deskripsi</h3>
+                            <h3 className="text-lg font-semibold">Description</h3>
                             <p className="mt-2 text-gray-600">{product.description}</p>
                         </div>
 
@@ -135,7 +121,7 @@ export default function ProductDetail({ product, relatedProducts }: ProductDetai
 
                         {product.stock > 0 && (
                             <div>
-                                <h3 className="text-lg font-semibold">Jumlah</h3>
+                                <h3 className="text-lg font-semibold">Quantity</h3>
                                 <div className="mt-3 flex items-center space-x-3">
                                     <Button variant="outline" size="icon" onClick={decreaseQuantity} disabled={quantity <= 1}>
                                         <Minus className="h-4 w-4" />
@@ -156,11 +142,11 @@ export default function ProductDetail({ product, relatedProducts }: ProductDetai
 
                             {!isLoggedIn && (
                                 <p className="mt-2 text-center text-sm text-gray-500">
-                                    Silakan{' '}
+                                    Please{' '}
                                     <a href="/login" className="font-medium text-indigo-600 hover:text-indigo-500">
                                         login
                                     </a>{' '}
-                                    untuk melakukan pembelian
+                                    to make a purchase.
                                 </p>
                             )}
                         </div>
@@ -169,7 +155,7 @@ export default function ProductDetail({ product, relatedProducts }: ProductDetai
 
                 {relatedProducts.length > 0 && (
                     <div className="mt-16">
-                        <h2 className="mb-6 text-2xl font-bold">Produk Terkait</h2>
+                        <h2 className="mb-6 text-2xl font-bold">Related Products</h2>
                         <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-3">
                             {relatedProducts.map((relatedProduct) => (
                                 <ProductCard key={relatedProduct.id} product={relatedProduct} />
