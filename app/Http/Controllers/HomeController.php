@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\Models\Product;
-use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
 
 class HomeController extends Controller
@@ -19,7 +18,7 @@ class HomeController extends Controller
         $bestSellerProducts = Product::with('seller')
             ->withSum('paidInvoiceItems as total_sold', 'quantity')
             ->orderByDesc('total_sold')
-            ->take(3)
+            ->take(4)
             ->get();
 
         return Inertia::render('welcome', [
