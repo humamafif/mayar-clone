@@ -2,10 +2,11 @@ import { Button } from '@/components/ui/button';
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import AppLayout from '@/layouts/app-layout';
+import { createProduct } from '@/lib/handlers/products/create-product';
 import { parseRupiah, rupiahFormatter } from '@/lib/utils';
 import { BreadcrumbItem } from '@/types';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Head, router } from '@inertiajs/react';
+import { Head } from '@inertiajs/react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 
@@ -48,18 +49,7 @@ export default function CreateProduct() {
         },
     });
 
-    function onSubmit(values: z.infer<typeof formSchema>) {
-        const formData = new FormData();
-
-        if (values.image) formData.append('image', values.image);
-        formData.append('name', values.name);
-        formData.append('description', values.description);
-        formData.append('price', values.price.toString());
-        formData.append('stock', values.stock.toString());
-        if (values.file) formData.append('file', values.file);
-        if (values.product_url) formData.append('product_url', values.product_url);
-        router.post(route('seller.products.store'), formData);
-    }
+    const onSubmit = (values: z.infer<typeof formSchema>) => createProduct(values);
 
     return (
         <AppLayout breadcrumbs={breadcrumbs}>

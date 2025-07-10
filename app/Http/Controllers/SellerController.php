@@ -14,7 +14,7 @@ class SellerController extends Controller
     {
         $seller = $request->user()->seller;
 
-        return Inertia::render('seller/store/store-settings', [
+        return Inertia::render('seller/store/index', [
             'seller' => $seller
         ]);
     }

@@ -2,11 +2,12 @@ import { Button } from '@/components/ui/button';
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import AppLayout from '@/layouts/app-layout';
+import { updateProduct } from '@/lib/handlers/products/update-product';
 import { parseRupiah, rupiahFormatter } from '@/lib/utils';
 import { BreadcrumbItem } from '@/types';
 import { Product } from '@/types/product';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Head, router } from '@inertiajs/react';
+import { Head } from '@inertiajs/react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 
@@ -40,28 +41,7 @@ export default function EditProduct({ product }: { product: Product }) {
         },
     });
 
-    const onSubmit = (values: z.infer<typeof formSchema>) => {
-        const formData = new FormData();
-        formData.append('name', values.name);
-        formData.append('description', values.description);
-        formData.append('price', values.price.toString());
-        formData.append('stock', values.stock.toString());
-
-        if (values.image && values.image instanceof File) {
-            formData.append('image', values.image);
-        }
-
-        if (values.file && values.file instanceof File) {
-            formData.append('file', values.file);
-        }
-        if (values.product_url) {
-            formData.append('product_url', values.product_url);
-        }
-
-        formData.append('_method', 'PUT'); // important for PUT request in Laravel
-        router.post(route('seller.products.update', { product: product.id }), formData);
-    };
-
+    const onSubmit = (values: z.infer<typeof formSchema>) => updateProduct(product.id, values);
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title={`Edit Product: ${product.name}`} />

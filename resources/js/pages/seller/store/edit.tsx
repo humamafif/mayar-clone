@@ -3,12 +3,11 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { updateStore } from '@/lib/handlers/store/update-store';
 import { formatDate } from '@/lib/utils';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { router } from '@inertiajs/react';
 import { useRef, useState } from 'react';
 import { useForm as useHookForm } from 'react-hook-form';
-import { toast } from 'sonner';
 import * as z from 'zod';
 const formSchema = z.object({
     shop_name: z.string().min(3, { message: 'Store name must be at least 3 characters long' }),
@@ -32,7 +31,7 @@ interface StoreEditFormProps {
     put: (url: string, data: any, options?: any) => void;
 }
 
-export function StoreEditForm({ data, setData, errors, processing, seller, onCancel, onSuccess, put }: StoreEditFormProps) {
+export function StoreEditForm({ data, setData, errors, processing, seller, onCancel, onSuccess }: StoreEditFormProps) {
     const form = useHookForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
         defaultValues: data,
@@ -41,33 +40,7 @@ export function StoreEditForm({ data, setData, errors, processing, seller, onCan
     const [preview, setPreview] = useState<string | null>(seller.shop_photo ? `/storage/${seller.shop_photo}` : null);
     const fileInputRef = useRef<HTMLInputElement>(null);
 
-    const handleSubmit = (values: z.infer<typeof formSchema>) => {
-        const formData = new FormData();
-        formData.append('shop_name', data.shop_name);
-        formData.append('shop_description', data.shop_description || '');
-        formData.append('phone_number', data.phone_number);
-        formData.append('address', data.address);
-        formData.append('bank_name', data.bank_name);
-        formData.append('account_number', data.account_number);
-        formData.append('bank_account', data.bank_account);
-
-        if (data.shop_photo && data.shop_photo instanceof File) {
-            formData.append('shop_photo', data.shop_photo);
-        }
-
-        formData.append('_method', 'PUT');
-
-        router.post(route('seller.store-info.update'), formData, {
-            forceFormData: true,
-            onSuccess: () => {
-                toast.success('Store information updated successfully');
-                onSuccess();
-            },
-            onError: () => {
-                toast.error('Failed to update store information');
-            },
-        });
-    };
+    const handleSubmit = (values: z.infer<typeof formSchema>) => updateStore(data, onSuccess);
 
     return (
         <Form {...form}>

@@ -5,8 +5,8 @@ import { formatDate } from '@/lib/utils';
 import { Head, useForm } from '@inertiajs/react';
 import { PencilIcon, TriangleAlert, X } from 'lucide-react';
 import { useState } from 'react';
-import { StoreDetail } from './store-detail';
-import { StoreEditForm } from './store-edit';
+import { StoreDetail } from './detail';
+import { StoreEditForm } from './edit';
 
 interface StoreInfoProps {
     seller: SellerInfo;

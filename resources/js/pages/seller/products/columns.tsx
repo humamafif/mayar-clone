@@ -7,8 +7,9 @@ import { Edit, Eye, LinkIcon, MoreHorizontal, Trash } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+import { deleteProduct } from '@/lib/handlers/products/delete-product';
 import { Product } from '@/types/product';
-import { Link, router } from '@inertiajs/react';
+import { Link } from '@inertiajs/react';
 
 export const columns: ColumnDef<Product>[] = [
     {
@@ -122,9 +123,7 @@ export const columns: ColumnDef<Product>[] = [
 
             const handleDelete = (e: React.MouseEvent) => {
                 e.preventDefault();
-                if (confirm(`Are you sure you want to delete "${productName}"?`)) {
-                    router.delete(route('seller.products.destroy', { product: productId }));
-                }
+                deleteProduct(productId, productName);
             };
 
             return (
