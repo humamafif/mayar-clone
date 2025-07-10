@@ -8,7 +8,8 @@ import { ShoppingBag, ShoppingCart, TrendingUp } from 'lucide-react';
 export function ProductCard({ product }: { product: Product }) {
     const { addToCart, processing } = useAddToCart();
     const { auth } = usePage<SharedData>().props;
-    const isOwnProduct = auth.user && product.seller.user_id === auth.user.id;
+    const isOwnProduct = auth.user && product.seller && Number(product.seller.user_id) === Number(auth.user.id);
+
     const handleAddToCart = (e: React.MouseEvent) => {
         e.preventDefault();
         if (isOwnProduct) {

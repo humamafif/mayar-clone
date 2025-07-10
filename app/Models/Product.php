@@ -33,4 +33,11 @@ class Product extends Model
     {
         return $this->hasMany(InvoiceItem::class);
     }
+    public function paidInvoiceItems()
+    {
+        return $this->hasMany(\App\Models\InvoiceItem::class)
+            ->whereHas('invoice', function ($q) {
+                $q->where('status', 'paid');
+            });
+    }
 }

@@ -16,7 +16,7 @@ export default function ProductDetail({ product, relatedProducts }: { relatedPro
     const { auth } = usePage<SharedData>().props;
     const isLoggedIn = !!auth?.user;
     const { addToCart, processing } = useAddToCart();
-    const isOwnProduct = isLoggedIn && auth.user.id === product.seller.user_id;
+    const isOwnProduct = auth.user && product.seller && Number(product.seller.user_id) === Number(auth.user.id);
     const isButtonDisabled = product.stock === 0 || !isLoggedIn || processing || isOwnProduct;
 
     const getButtonText = () => {

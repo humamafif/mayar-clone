@@ -1,7 +1,16 @@
 import { router } from '@inertiajs/react';
 import { toast } from 'sonner';
 
+const MAX_IMAGE_SIZE = 2 * 1024 * 1024;
 export function updateStore(data: any, onSuccess: () => void) {
+    if (data.image && data.image instanceof File) {
+        if (data.image.size > MAX_IMAGE_SIZE) {
+            toast.error('Image file is too large', {
+                description: 'Maximum image size is 2MB',
+            });
+            return;
+        }
+    }
     const formData = new FormData();
 
     formData.append('shop_name', data.shop_name);
@@ -24,8 +33,12 @@ export function updateStore(data: any, onSuccess: () => void) {
             toast.success('Store information updated successfully');
             onSuccess();
         },
-        onError: () => {
-            toast.error('Failed to update store information');
+        onError: (errors) => {
+            if (errors.image) {
+                toast.error('Image error', { description: errors.image });
+            } else {
+                toast.error('Failed to update product');
+            }
         },
     });
 }
