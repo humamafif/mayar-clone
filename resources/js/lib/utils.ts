@@ -23,3 +23,12 @@ export function formatRupiah(amount: number): string {
         maximumFractionDigits: 0,
     }).format(amount);
 }
+
+export function formatDate(dateString: string, locale: string = 'en-US'): string {
+    const date = new Date(dateString);
+    return new Intl.DateTimeFormat(locale, {
+        day: 'numeric',
+        month: 'long',
+        year: 'numeric',
+    }).format(date);
+}

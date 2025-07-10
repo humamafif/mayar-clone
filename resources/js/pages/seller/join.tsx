@@ -35,24 +35,24 @@ export default function Join() {
 
     return (
         <>
-            <Head title="Daftar sebagai Seller" />
+            <Head title="Become a Seller" />
             <div className="py-12">
                 <div className="mx-auto max-w-7xl sm:px-6 lg:px-8">
                     <div className="overflow-hidden bg-white p-6 shadow-sm sm:rounded-lg dark:bg-gray-800">
-                        <h1 className="mb-6 text-2xl font-semibold">Daftar sebagai Seller</h1>
+                        <h1 className="mb-6 text-2xl font-semibold">Become a Seller</h1>
 
                         <form onSubmit={submit}>
                             <div className="space-y-6">
-                                {/* Informasi Toko */}
+                                {/* Store Information */}
                                 <div>
-                                    <h2 className="text-lg font-medium">Informasi Toko</h2>
+                                    <h2 className="text-lg font-medium">Store Information</h2>
                                     <p className="mb-4 text-sm text-gray-500 dark:text-gray-400">
-                                        Isi detail toko Anda untuk membantu pembeli mengenal bisnis Anda.
+                                        Fill in your store details to help buyers learn about your business.
                                     </p>
 
                                     <div>
                                         <Label htmlFor="shop_name">
-                                            Nama Toko <span className="text-red-500">*</span>
+                                            Store Name <span className="text-red-500">*</span>
                                         </Label>
                                         <Input
                                             id="shop_name"
@@ -67,7 +67,7 @@ export default function Join() {
 
                                     <div className="mt-4">
                                         <Label htmlFor="shop_description">
-                                            Deskripsi Toko <span className="text-red-500">*</span>
+                                            Store Description <span className="text-red-500">*</span>
                                         </Label>
                                         <Input
                                             id="shop_description"
@@ -75,23 +75,23 @@ export default function Join() {
                                             value={data.shop_description}
                                             onChange={(e) => setData('shop_description', e.target.value)}
                                             className="mt-1 block w-full"
-                                            placeholder="Jelaskan secara singkat tentang toko dan produk Anda..."
+                                            placeholder="Briefly describe your store..."
                                         />
                                         {errors.shop_description && <div className="mt-1 text-red-500">{errors.shop_description}</div>}
                                     </div>
                                 </div>
 
-                                {/* Informasi Kontak */}
+                                {/* Contact Information */}
                                 <div>
-                                    <h2 className="text-lg font-medium">Informasi Kontak</h2>
+                                    <h2 className="text-lg font-medium">Contact Information</h2>
                                     <p className="mb-4 text-sm text-gray-500 dark:text-gray-400">
-                                        Informasi kontak yang bisa dihubungi oleh admin marketplace.
+                                        Contact details that can be reached by the marketplace admin.
                                     </p>
 
                                     <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
                                         <div>
                                             <Label htmlFor="phone_number">
-                                                Nomor Telepon <span className="text-red-500">*</span>
+                                                Phone Number <span className="text-red-500">*</span>
                                             </Label>
                                             <Input
                                                 id="phone_number"
@@ -106,7 +106,7 @@ export default function Join() {
 
                                         <div>
                                             <Label htmlFor="id_card_number">
-                                                Nomor KTP <span className="text-red-500">*</span>
+                                                ID Card Number <span className="text-red-500">*</span>
                                             </Label>
                                             <Input
                                                 id="id_card_number"
@@ -123,7 +123,7 @@ export default function Join() {
 
                                     <div className="mt-4">
                                         <Label htmlFor="address">
-                                            Alamat <span className="text-red-500">*</span>
+                                            Address <span className="text-red-500">*</span>
                                         </Label>
                                         <Input
                                             id="address"
@@ -136,17 +136,15 @@ export default function Join() {
                                     </div>
                                 </div>
 
-                                {/* Informasi Pembayaran */}
+                                {/* Bank Account Information */}
                                 <div>
-                                    <h2 className="text-lg font-medium">Informasi Rekening</h2>
-                                    <p className="mb-4 text-sm text-gray-500 dark:text-gray-400">
-                                        Rekening untuk menerima pembayaran dari penjualan.
-                                    </p>
+                                    <h2 className="text-lg font-medium">Bank Account Information</h2>
+                                    <p className="mb-4 text-sm text-gray-500 dark:text-gray-400">Your account to receive sales payments.</p>
 
                                     <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
                                         <div>
                                             <Label htmlFor="bank_name">
-                                                Nama Bank <span className="text-red-500">*</span>
+                                                Bank Name <span className="text-red-500">*</span>
                                             </Label>
                                             <Input
                                                 id="bank_name"
@@ -155,14 +153,14 @@ export default function Join() {
                                                 onChange={(e) => setData('bank_name', e.target.value)}
                                                 required
                                                 className="mt-1 block w-full"
-                                                placeholder="Masukkan nama bank"
+                                                placeholder="Input your bank name"
                                             />
                                             {errors.bank_name && <div className="mt-1 text-red-500">{errors.bank_name}</div>}
                                         </div>
 
                                         <div>
                                             <Label htmlFor="account_number">
-                                                Nomor Rekening <span className="text-red-500">*</span>
+                                                Account Number <span className="text-red-500">*</span>
                                             </Label>
                                             <Input
                                                 id="account_number"
@@ -179,7 +177,7 @@ export default function Join() {
 
                                     <div className="mt-4">
                                         <Label htmlFor="bank_account">
-                                            Nama Pemilik Rekening <span className="text-red-500">*</span>
+                                            Account Holder Name <span className="text-red-500">*</span>
                                         </Label>
                                         <Input
                                             id="bank_account"
@@ -193,7 +191,7 @@ export default function Join() {
                                     </div>
                                 </div>
 
-                                {/* Syarat dan Ketentuan */}
+                                {/* Terms and Conditions */}
                                 <div className="mt-6">
                                     <label className="flex items-center">
                                         <input
@@ -204,11 +202,10 @@ export default function Join() {
                                             className="rounded border-gray-300 text-indigo-600 shadow-sm focus:ring-indigo-500 dark:border-gray-700 dark:bg-gray-900 dark:focus:ring-indigo-600 dark:focus:ring-offset-gray-800"
                                         />
                                         <span className="ml-2 text-sm text-gray-600 dark:text-gray-400">
-                                            Saya menyetujui{' '}
+                                            I agree to the{' '}
                                             <a href="#" className="text-blue-600 hover:underline dark:text-blue-400">
-                                                syarat dan ketentuan
-                                            </a>{' '}
-                                            yang berlaku
+                                                terms and conditions
+                                            </a>
                                         </span>
                                     </label>
                                     {errors.agree_to_terms && <div className="mt-1 text-red-500">{errors.agree_to_terms}</div>}
@@ -217,10 +214,10 @@ export default function Join() {
                                 <div className="mt-6 flex items-center justify-end">
                                     <button
                                         type="submit"
-                                        className="inline-flex items-center rounded-md border border-transparent bg-gray-800 px-4 py-2 text-xs font-semibold tracking-widest text-white uppercase transition duration-150 ease-in-out hover:bg-gray-700 focus:bg-gray-700 focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 focus:outline-none active:bg-gray-900 dark:bg-gray-200 dark:text-gray-800 dark:hover:bg-white dark:focus:bg-white dark:focus:ring-offset-gray-800 dark:active:bg-gray-300"
+                                        className="inline-flex items-center rounded-md border border-transparent bg-gray-800 px-4 py-2 text-sm font-semibold tracking-widest text-white transition duration-150 ease-in-out hover:bg-gray-700 focus:bg-gray-700 focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 focus:outline-none active:bg-gray-900 dark:bg-gray-200 dark:text-gray-800 dark:hover:bg-white dark:focus:bg-white dark:focus:ring-offset-gray-800 dark:active:bg-gray-300"
                                         disabled={processing}
                                     >
-                                        Menjadi Seller
+                                        Register as Seller
                                     </button>
                                 </div>
                             </div>

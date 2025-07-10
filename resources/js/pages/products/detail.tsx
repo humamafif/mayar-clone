@@ -1,47 +1,29 @@
-import { ProductCard } from '@/components/product-card';
+import { ProductCard } from '@/components/product/product-card';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
+import { useAddToCart } from '@/hooks/cart/use-add-to-cart';
 import AppLayout from '@/layouts/app-layout';
 import { formatRupiah } from '@/lib/utils';
-import { PageProps, SharedData, type Product } from '@/types';
+import { SharedData } from '@/types';
+import { Product } from '@/types/product';
 import { Head, router, usePage } from '@inertiajs/react';
-import { Minus, Plus, ShoppingBag, Store } from 'lucide-react';
+import { AlertCircle, Minus, Plus, ShoppingCart, Store, TrendingUp } from 'lucide-react';
 import { useState } from 'react';
-import axios from 'axios'; 
 
-
-interface SellerDetails {
-    user: {
-        name: string;
-    };
-    shop_name: string;
-}
-
-interface ProductDetailProps {
-    product: Product & {
-        seller: SellerDetails;
-    };
-    relatedProducts: Product[];
-}
-
-interface FlashMessage {
-    url?: string;
-    error?: string;
-    success?: string;
-}
-
-export default function ProductDetail({ product, relatedProducts }: ProductDetailProps) {
+export default function ProductDetail({ product, relatedProducts }: { relatedProducts: Product[]; product: Product }) {
     const [quantity, setQuantity] = useState(1);
-    const [processing, setProcessing] = useState(false);
     const { auth } = usePage<SharedData>().props;
     const isLoggedIn = !!auth?.user;
-
-    const isButtonDisabled = product.stock === 0 || !isLoggedIn || processing;
+    const { addToCart, processing } = useAddToCart();
+    const isOwnProduct = auth.user && product.seller && Number(product.seller.user_id) === Number(auth.user.id);
+    const isButtonDisabled = product.stock === 0 || !isLoggedIn || processing || isOwnProduct;
 
     const getButtonText = () => {
-        if (processing) return 'Memproses...';
-        if (product.stock === 0) return 'Stok Habis';
-        return 'Beli Sekarang & Bayar';
+        if (processing) return 'Processing...';
+        if (product.stock === 0) return 'Out of Stock';
+        if (isOwnProduct) return 'Your Own Product';
+        return 'Add to Cart';
     };
 
     const increaseQuantity = () => {
@@ -56,35 +38,13 @@ export default function ProductDetail({ product, relatedProducts }: ProductDetai
         }
     };
 
-    const handlePurchase = async () => {
+    const handleAddToCart = () => {
         if (!isLoggedIn) {
             router.visit('/login');
             return;
         }
-    
-        const data = {
-            product_id: product.id,
-            quantity: quantity,
-        };
-    
-        try {
-            setProcessing(true);
-            const response = await axios.post('/order', data);
-    
-            const url = response.data?.invoice_url;
-            if (url) {
-                window.location.href = url;
-            } else {
-                alert('Gagal mendapatkan invoice URL');
-            }
-        } catch (error: any) {
-            console.error(error);
-            alert('Terjadi kesalahan saat memproses pesanan');
-        } finally {
-            setProcessing(false);
-        }
+        addToCart(product.id, quantity);
     };
-    
 
     return (
         <AppLayout>
@@ -98,36 +58,54 @@ export default function ProductDetail({ product, relatedProducts }: ProductDetai
                             alt={product.name}
                             className="h-full w-full object-cover"
                             onError={(e) => {
-                                e.currentTarget.src = 'https://placehold.co/600x400/indigo/white?text=Produk+Digital';
+                                e.currentTarget.src = 'https://placehold.co/600x400/indigo/white?text=Digital+Product';
                             }}
                         />
                     </div>
 
+                    {/* Product details section */}
                     <div className="flex flex-col">
                         <h1 className="text-3xl font-bold">{product.name}</h1>
 
-                        <div className="mt-2 flex items-center space-x-2">
-                            <Store className="h-4 w-4 text-gray-500" />
-                            <span className="text-gray-600">{product.seller.shop_name}</span>
-                        </div>
-
-                        <div className="mt-6">
-                            <h2 className="text-2xl font-bold text-amber-500">{formatRupiah(product.price)}</h2>
+                        <div className="mt-6 flex justify-between">
+                            <div className="flex-col gap-2">
+                                <h2 className="text-2xl font-bold text-amber-500">{formatRupiah(product.price)}</h2>
+                                <p className="flex items-center gap-1 text-sm text-emerald-600">
+                                    <TrendingUp className="h-4 w-4" />
+                                    <span>{product.total_sold && product.total_sold > 0 ? `${product.total_sold} sold` : 'New product'}</span>
+                                </p>
+                            </div>
                             <div className="mt-2">
                                 <span
                                     className={`inline-flex items-center rounded-full px-3 py-1 text-sm font-medium ${
                                         product.stock > 0 ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
                                     }`}
                                 >
-                                    {product.stock > 0 ? `Stok: ${product.stock}` : 'Stok Habis'}
+                                    {product.stock > 0 ? `Stock: ${product.stock}` : 'Out of Stock'}
                                 </span>
                             </div>
                         </div>
-
                         <Separator className="my-6" />
 
+                        <div className="my-2 flex items-center space-x-2">
+                            {product.seller.shop_photo ? (
+                                <img
+                                    src={`/storage/${product.seller.shop_photo}`}
+                                    alt={product.seller.shop_name}
+                                    className="h-12 w-12 rounded-full border border-gray-500 object-cover"
+                                    onError={(e) => {
+                                        e.currentTarget.src = 'https://placehold.co/40x40/gray/white?text=S';
+                                        e.currentTarget.className = 'h-5 w-5 rounded-full';
+                                    }}
+                                />
+                            ) : (
+                                <Store className="h-4 w-4 text-gray-500" />
+                            )}
+                            <span className="text-gray-600">{product.seller.shop_name}</span>
+                        </div>
+
                         <div>
-                            <h3 className="text-lg font-semibold">Deskripsi</h3>
+                            <h3 className="text-lg font-semibold">Description</h3>
                             <p className="mt-2 text-gray-600">{product.description}</p>
                         </div>
 
@@ -135,7 +113,7 @@ export default function ProductDetail({ product, relatedProducts }: ProductDetai
 
                         {product.stock > 0 && (
                             <div>
-                                <h3 className="text-lg font-semibold">Jumlah</h3>
+                                <h3 className="text-lg font-semibold">Quantity</h3>
                                 <div className="mt-3 flex items-center space-x-3">
                                     <Button variant="outline" size="icon" onClick={decreaseQuantity} disabled={quantity <= 1}>
                                         <Minus className="h-4 w-4" />
@@ -149,27 +127,36 @@ export default function ProductDetail({ product, relatedProducts }: ProductDetai
                         )}
 
                         <div className="mt-8">
-                            <Button className="w-full" disabled={isButtonDisabled} size="lg" onClick={handlePurchase}>
-                                <ShoppingBag className="mr-2 h-5 w-5" />
+                            {isOwnProduct && (
+                                <Alert className="mb-4 bg-amber-50">
+                                    <AlertCircle className="h-4 w-4 text-amber-600" />
+                                    <AlertDescription className="text-amber-800">
+                                        This is your own product. You cannot purchase your own products.
+                                    </AlertDescription>
+                                </Alert>
+                            )}
+                            <Button className="w-full" disabled={isButtonDisabled} size="lg" onClick={handleAddToCart}>
+                                <ShoppingCart className="mr-2 h-5 w-5" />
                                 {getButtonText()}
                             </Button>
 
                             {!isLoggedIn && (
                                 <p className="mt-2 text-center text-sm text-gray-500">
-                                    Silakan{' '}
+                                    Please{' '}
                                     <a href="/login" className="font-medium text-indigo-600 hover:text-indigo-500">
                                         login
                                     </a>{' '}
-                                    untuk melakukan pembelian
+                                    to make a purchase.
                                 </p>
                             )}
                         </div>
                     </div>
                 </div>
 
+                {/* Related products section */}
                 {relatedProducts.length > 0 && (
                     <div className="mt-16">
-                        <h2 className="mb-6 text-2xl font-bold">Produk Terkait</h2>
+                        <h2 className="mb-6 text-2xl font-bold">Related Products</h2>
                         <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-3">
                             {relatedProducts.map((relatedProduct) => (
                                 <ProductCard key={relatedProduct.id} product={relatedProduct} />

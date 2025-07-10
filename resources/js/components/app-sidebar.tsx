@@ -20,16 +20,16 @@ const mainNavItems: NavItem[] = [
     },
 
     {
-        title: 'Transaksi',
-        href: '/seller/orders',
+        title: 'Transactions',
+        href: '/seller/transactions',
         icon: ClipboardList,
     },
 ];
 
 const footerNavItems: NavItem[] = [
     {
-        title: 'Informasi Toko',
-        href: '/seller/store-info',
+        title: 'Store Settings',
+        href: '/seller/store-settings',
         icon: Store,
     },
 ];

@@ -3,44 +3,52 @@
 namespace App\Http\Controllers;
 
 use App\Models\Product;
-use Illuminate\Http\Request;
 use Inertia\Inertia;
 
 class HomeController extends Controller
 {
-    /**
-     * Menampilkan halaman daftar semua produk.
-     */
-    public function products()
+    public function index()
     {
-        $products = Product::with('seller')
+        $latestProducts = Product::with('seller')
+            ->withSum('paidInvoiceItems as total_sold', 'quantity')
             ->latest()
+            ->take(6)
             ->get();
 
-        return Inertia::render('products/index', [
-            'products' => $products
+        $bestSellerProducts = Product::with('seller')
+            ->withSum('paidInvoiceItems as total_sold', 'quantity')
+            ->orderByDesc('total_sold')
+            ->take(4)
+            ->get();
+
+        return Inertia::render('welcome', [
+            'latestProducts' => $latestProducts,
+            'bestSellers' => $bestSellerProducts,
         ]);
     }
 
-    /**
-     * Menampilkan halaman detail satu produk.
-     *
-     * @param  \App\Models\Product  $product
-     * @return \Inertia\Response
-     */
+    public function products()
+    {
+        $products = Product::with('seller')
+            ->withSum('paidInvoiceItems as total_sold', 'quantity')
+            ->get();
+
+        return Inertia::render('products/index', [
+            'products' => $products,
+        ]);
+    }
+
+
     public function productDetail(Product $product)
     {
-        // Muat relasi seller untuk produk utama
-        $product->load('seller.user');
-
+        $product->load('seller.user')->loadSum('paidInvoiceItems as total_sold', 'quantity');;
         $relatedProducts = Product::with('seller')
+            ->withSum('paidInvoiceItems as total_sold', 'quantity')
             ->where('seller_id', $product->seller_id)
             ->where('id', '!=', $product->id)
             ->inRandomOrder()
             ->limit(3)
             ->get();
-
-        // Render halaman detail
         return Inertia::render('products/detail', [
             'product' => $product,
             'relatedProducts' => $relatedProducts

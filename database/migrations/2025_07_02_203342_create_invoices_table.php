@@ -10,7 +10,6 @@ return new class extends Migration {
         Schema::create('invoices', function (Blueprint $table) {
             $table->id();
             $table->foreignId('user_id')->constrained()->onDelete('cascade');
-            $table->string('external_id')->unique();
             $table->string('invoice_code')->unique();
             $table->decimal('amount', 12, 2);
             $table->string('status')->default('PENDING');

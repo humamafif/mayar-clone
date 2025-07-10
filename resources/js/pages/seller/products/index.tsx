@@ -1,10 +1,11 @@
 import { Button } from '@/components/ui/button';
 import AppLayout from '@/layouts/app-layout';
 import { BreadcrumbItem } from '@/types';
+import { Product } from '@/types/product';
 import { Head, Link, usePage } from '@inertiajs/react';
 import { useEffect } from 'react';
 import { toast } from 'sonner';
-import { Product, columns } from './columns';
+import { columns } from './columns';
 import { DataTable } from './data-table';
 
 const breadcrumb: BreadcrumbItem[] = [

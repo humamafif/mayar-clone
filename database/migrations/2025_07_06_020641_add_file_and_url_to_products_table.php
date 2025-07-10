@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::table('products', function (Blueprint $table) {
             $table->string('file_path')->nullable()->after('image');
-            $table->string('external_url')->nullable()->after('file_path');
+            $table->string('product_url')->nullable()->after('file_path');
         });
     }
 
@@ -23,7 +23,7 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('products', function (Blueprint $table) {
-            $table->dropColumn(['file_path', 'external_url']);
+            $table->dropColumn(['file_path', 'product_url']);
         });
     }
 };

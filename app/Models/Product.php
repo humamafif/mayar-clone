@@ -16,7 +16,7 @@ class Product extends Model
         'price',
         'stock',
         'file_path',
-        'external_url',
+        'product_url',
     ];
 
     public function seller(): BelongsTo
@@ -32,5 +32,12 @@ class Product extends Model
     public function invoiceItems()
     {
         return $this->hasMany(InvoiceItem::class);
+    }
+    public function paidInvoiceItems()
+    {
+        return $this->hasMany(\App\Models\InvoiceItem::class)
+            ->whereHas('invoice', function ($q) {
+                $q->where('status', 'paid');
+            });
     }
 }

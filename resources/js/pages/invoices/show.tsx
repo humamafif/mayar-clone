@@ -4,27 +4,6 @@ import AppLayout from '@/layouts/app-layout';
 import { Head, Link } from '@inertiajs/react';
 import { Download, FileText, LinkIcon } from 'lucide-react';
 
-interface InvoiceProduct {
-    name: string;
-    image: string;
-    file_path?: string;
-    external_url?: string;
-}
-interface InvoiceItemDetail {
-    id: number;
-    product: InvoiceProduct;
-    quantity: number;
-    price: number;
-}
-interface InvoiceItem {
-    id: number;
-    amount: number;
-    status: string;
-    invoice_code: string;
-    invoice_url: string;
-    created_at: string;
-    items: InvoiceItemDetail[];
-}
 
 interface InvoiceProps {
     invoice: InvoiceItem;
@@ -75,11 +54,11 @@ export default function InvoiceDetail({ invoice }: InvoiceProps) {
                                             </div>
                                         )}
 
-                                        {item.product.external_url && (
+                                        {item.product.product_url && (
                                             <div className="flex items-center gap-2">
                                                 <LinkIcon className="h-4 w-4 text-blue-500" />
                                                 <a
-                                                    href={item.product.external_url}
+                                                    href={item.product.product_url}
                                                     target="_blank"
                                                     rel="noopener noreferrer"
                                                     className="flex items-center gap-1 text-sm text-blue-600 hover:text-blue-800"
@@ -100,7 +79,7 @@ export default function InvoiceDetail({ invoice }: InvoiceProps) {
                     </div>
                 </div>
                 <Button className="mt-6" variant={'outline'} asChild>
-                    <Link href={route('order.index')}>Kembali ke riwayat</Link>
+                    <Link href={route('invoices.index')}>Back to history</Link>
                 </Button>
             </div>
         </AppLayout>

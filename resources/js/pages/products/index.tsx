@@ -1,25 +1,22 @@
-import type { Product } from '@/types/product'; 
-import { ProductCard } from '@/components/product-card'; 
+import { ProductCard } from '@/components/product/product-card';
 import AppLayout from '@/layouts/app-layout';
+import type { Product } from '@/types/product';
 import { Head } from '@inertiajs/react';
+import { ShoppingBagIcon } from 'lucide-react';
 
 export default function Products({ products = [] }: { products: Product[] }) {
     return (
         <AppLayout>
-            <Head title="Semua Produk" />
+            <Head title="All Products" />
             <div className="py-8">
                 <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-                    <div className="mb-8">
-                        <h1 className="text-3xl font-bold text-gray-900">Semua Produk</h1>
-                        <p className="mt-2 text-gray-600">Temukan berbagai produk digital yang tersedia di platform kami</p>
-                    </div>
-
                     <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
                         {products.length > 0 ? (
                             products.map((product) => <ProductCard key={product.id} product={product} />)
                         ) : (
-                            <div className="col-span-full py-12 text-center">
-                                <p className="text-xl text-gray-500">Belum ada produk tersedia. Silakan periksa kembali nanti!</p>
+                            <div className="col-span-full flex flex-col items-center justify-center py-12 text-center">
+                                <ShoppingBagIcon className="mb-4 h-20 w-20 text-gray-500" />
+                                <p className="text-xl text-gray-500">No products available at the moment. Please check back later!</p>
                             </div>
                         )}
                     </div>
