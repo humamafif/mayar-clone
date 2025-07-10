@@ -7,7 +7,7 @@ export default function PageNotFound() {
         <div className="flex min-h-screen items-center justify-center bg-white dark:bg-gray-900">
             <Head title="Page Not Found" />
             <div className="container flex min-h-[70vh] flex-col items-center justify-center py-12 text-center">
-                <img src="404-illustration.svg" alt="Page not found" className="mb-8 max-w-md" />
+                <img src="images/404-illustration.svg" alt="Page not found" className="mb-8 max-w-md" />
 
                 <h1 className="mb-2 text-4xl font-bold tracking-tight text-gray-900 dark:text-white">Oops! Page not found</h1>
 
