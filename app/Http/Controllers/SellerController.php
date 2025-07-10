@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Models\Seller;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
 use Inertia\Inertia;
 
 class SellerController extends Controller
@@ -109,5 +111,44 @@ class SellerController extends Controller
         return Inertia::render('seller/invoices/index', [
             'invoices' => $invoices
         ]);
+    }
+
+    public function updateStore(Request $request)
+    {
+        $request->validate([
+            'shop_name' => 'required|min:3|max:255',
+            'shop_description' => 'nullable|string',
+            'phone_number' => 'required|string|min:10',
+            'address' => 'required|string|min:5',
+            'shop_photo' => 'nullable|image|max:2048',
+            'bank_name' => 'required|string|min:2',
+            'account_number' => 'required|string|min:5',
+            'bank_account' => 'required|string|min:3',
+        ]);
+
+        $user = Auth::user();
+        $seller = $user->seller;
+
+        $data = $request->only([
+            'shop_name',
+            'shop_description',
+            'phone_number',
+            'address',
+            'bank_name',
+            'account_number',
+            'bank_account'
+        ]);
+
+        if ($request->hasFile('shop_photo')) {
+            if ($seller->shop_photo && Storage::disk('public')->exists($seller->shop_photo)) {
+                Storage::disk('public')->delete($seller->shop_photo);
+            }
+
+            $data['shop_photo'] = $request->file('shop_photo')->store('shop_photos', 'public');
+        }
+
+        $seller->update($data);
+
+        return redirect()->back()->with('message', 'Store information updated successfully');
     }
 }

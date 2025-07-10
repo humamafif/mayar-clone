@@ -3,6 +3,7 @@ interface SellerInfo {
     user_id: number;
     shop_name: string;
     shop_description: string | null;
+    shop_photo: string | null;
     phone_number: string;
     address: string;
     id_card_number: string;

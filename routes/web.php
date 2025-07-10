@@ -6,13 +6,10 @@ use App\Http\Controllers\InvoiceController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\SellerController;
 use App\Http\Middleware\SellerMiddleware;
-use App\Models\Product;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
-use Inertia\Inertia;
 
 // ======================
-// HALAMAN PUBLIK
+// PUBLIC ROUTES
 // ======================
 Route::get('/', [HomeController::class, 'index'])->name('home');
 
@@ -20,10 +17,10 @@ Route::get('/products', [HomeController::class, 'products'])->name('products');
 Route::get('/products/{product}', [HomeController::class, 'productDetail'])->name('products.detail');
 
 // ======================
-// USER TERAUTENTIKASI
+// AUTHENTICATED ROUTES
 // ======================
 Route::middleware(['auth', 'verified'])->group(function () {
-    // Join sebagai seller
+    // Join as Seller
     Route::get('/seller/join', [SellerController::class, 'joinForm'])->name('seller.join');
     Route::post('/seller/join', [SellerController::class, 'join'])->name('seller.process');
 
@@ -32,7 +29,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/cart/list', [CartController::class, 'getCart'])->name('cart.list');
     Route::post('/cart/{id}/cancel', [CartController::class, 'cancel'])->name('cart.cancel');
 
-    // Invoice (Pembeli)
+    // Invoice
     Route::get('/invoices', [InvoiceController::class, 'index'])->name('invoices.index');
     Route::prefix('invoices')->name('invoices.')->group(function () {
         Route::post('/', [InvoiceController::class, 'store'])->name('store');
@@ -49,6 +46,7 @@ Route::middleware(['auth', SellerMiddleware::class])
     ->group(function () {
         Route::get('/dashboard', [SellerController::class, 'dashboard'])->name('dashboard');
         Route::get('/store-settings', [SellerController::class, 'storeInfo'])->name('store-info');
+        Route::put('/store-settings/update', [SellerController::class, 'updateStore'])->name('store-info.update');
         Route::resource('products', ProductController::class);
         Route::get('/transactions', [SellerController::class, 'invoices'])->name('invoices');
     });

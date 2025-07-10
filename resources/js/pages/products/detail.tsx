@@ -67,11 +67,6 @@ export default function ProductDetail({ product, relatedProducts }: { relatedPro
                     <div className="flex flex-col">
                         <h1 className="text-3xl font-bold">{product.name}</h1>
 
-                        <div className="mt-2 flex items-center space-x-2">
-                            <Store className="h-4 w-4 text-gray-500" />
-                            <span className="text-gray-600">{product.seller.shop_name}</span>
-                        </div>
-
                         <div className="mt-6 flex justify-between">
                             <div className="flex-col gap-2">
                                 <h2 className="text-2xl font-bold text-amber-500">{formatRupiah(product.price)}</h2>
@@ -90,8 +85,24 @@ export default function ProductDetail({ product, relatedProducts }: { relatedPro
                                 </span>
                             </div>
                         </div>
-
                         <Separator className="my-6" />
+
+                        <div className="my-2 flex items-center space-x-2">
+                            {product.seller.shop_photo ? (
+                                <img
+                                    src={`/storage/${product.seller.shop_photo}`}
+                                    alt={product.seller.shop_name}
+                                    className="h-12 w-12 rounded-full border border-gray-500 object-cover"
+                                    onError={(e) => {
+                                        e.currentTarget.src = 'https://placehold.co/40x40/gray/white?text=S';
+                                        e.currentTarget.className = 'h-5 w-5 rounded-full';
+                                    }}
+                                />
+                            ) : (
+                                <Store className="h-4 w-4 text-gray-500" />
+                            )}
+                            <span className="text-gray-600">{product.seller.shop_name}</span>
+                        </div>
 
                         <div>
                             <h3 className="text-lg font-semibold">Description</h3>
