@@ -9,10 +9,11 @@ export function ProductCard({ product }: { product: Product }) {
     const { addToCart, processing } = useAddToCart();
     const { auth } = usePage<SharedData>().props;
     const isOwnProduct = auth.user && product.seller && Number(product.seller.user_id) === Number(auth.user.id);
+    const isAuthenticated = !!auth.user;
 
     const handleAddToCart = (e: React.MouseEvent) => {
         e.preventDefault();
-        if (isOwnProduct) {
+        if (isOwnProduct || !isAuthenticated) {
             return;
         }
         addToCart(product.id, 1);
@@ -51,7 +52,7 @@ export function ProductCard({ product }: { product: Product }) {
                     <button
                         onClick={handleAddToCart}
                         className="rounded-lg bg-indigo-600 px-3 py-2 text-sm font-semibold text-white hover:bg-indigo-700 disabled:cursor-not-allowed disabled:opacity-50"
-                        disabled={product.stock === 0 || processing || isOwnProduct}
+                        disabled={product.stock === 0 || processing || isOwnProduct || !isAuthenticated}
                     >
                         {processing ? (
                             '...'
