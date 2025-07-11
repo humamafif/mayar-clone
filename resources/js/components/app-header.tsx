@@ -25,16 +25,19 @@ const sellerNavItems: NavItem[] = [
     },
 ];
 
+const authNavItems: NavItem[] = [
+    {
+        title: 'Invoices',
+        href: '/invoices',
+        icon: ClipboardList,
+    },
+];
+
 const publicNavItems: NavItem[] = [
     {
         title: 'Products',
         href: '/products',
         icon: ShoppingBag,
-    },
-    {
-        title: 'Invoices',
-        href: '/invoices',
-        icon: ClipboardList,
     },
 ];
 
@@ -77,6 +80,13 @@ export function AppHeader({ breadcrumbs = [] }: AppHeaderProps) {
                                                     <span>{item.title}</span>
                                                 </Link>
                                             ))}
+                                            {auth?.user &&
+                                                authNavItems.map((item) => (
+                                                    <Link key={item.title} href={item.href} className="flex items-center space-x-2 font-medium">
+                                                        {item.icon && <Icon iconNode={item.icon} className="h-5 w-5" />}
+                                                        <span>{item.title}</span>
+                                                    </Link>
+                                                ))}
                                             {auth?.user &&
                                                 auth.user.role === 'seller' &&
                                                 sellerNavItems.map((item) => (
@@ -137,7 +147,25 @@ export function AppHeader({ breadcrumbs = [] }: AppHeaderProps) {
                                         )}
                                     </NavigationMenuItem>
                                 ))}
-
+                                {auth?.user &&
+                                    authNavItems.map((item, index) => (
+                                        <NavigationMenuItem key={`auth-${index}`} className="relative flex h-full items-center">
+                                            <Link
+                                                href={item.href}
+                                                className={cn(
+                                                    navigationMenuTriggerStyle(),
+                                                    page.url === item.href && activeItemStyles,
+                                                    'h-9 cursor-pointer px-3',
+                                                )}
+                                            >
+                                                {item.icon && <Icon iconNode={item.icon} className="mr-2 h-4 w-4" />}
+                                                {item.title}
+                                            </Link>
+                                            {page.url === item.href && (
+                                                <div className="absolute bottom-0 left-0 h-0.5 w-full translate-y-px bg-black dark:bg-white"></div>
+                                            )}
+                                        </NavigationMenuItem>
+                                    ))}
                                 {auth?.user &&
                                     auth.user.role === 'seller' &&
                                     sellerNavItems.map((item, index) => (
